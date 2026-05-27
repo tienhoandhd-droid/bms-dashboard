@@ -675,72 +675,31 @@
      ============================================================ */
 
   /* ===== PHẦN 1 · CẤU HÌNH (CHỈ SỬA Ở ĐÂY) ===================== */
-// Lấy 2 giá trị tại: Supabase → Project Settings → API
-// LƯU Ý QUAN TRỌNG:
-// - Không chèn thẻ <script> vào trong khu vực này.
-// - Không dùng supabase.createClient() trong bản dashboard này.
-// - Dashboard này đang gọi Supabase bằng fetch() qua hàm sb() và rpc() ở PHẦN 2.
-// - Giữ nguyên cơ chế đăng nhập/chọn người dùng gốc ở PHẦN 7.
-// - Chỉ dùng anon/public key cho web. Tuyệt đối không dùng service_role key.
+  // Lấy 2 giá trị tại: Supabase → Project Settings → API
+  const SUPABASE_URL  = 'https://bligxhjontmpbiqhxbxf.supabase.co';   // ← THAY: Project URL
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsaWd4aGpvbnRtcGJpcWh4YnhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MjQxMjMsImV4cCI6MjA5NDEwMDEyM30.7qddGQnwr4oaY8W5-3myARHEMmXrJam4WL9ngZxJz34';                  // ← THAY: anon public key
+  const REFRESH_MS    = 60000;                          // tự làm mới dữ liệu realtime mỗi 60 giây (0 = tắt)
+  const TREND_REFRESH_MS = 30 * 60 * 1000;               // dữ liệu lịch sử/xu hướng chỉ làm mới 30 phút/lần
+  const TREND_MAX_SVG_WIDTH = 1400;                      // giới hạn DOM SVG, tránh chart 90/180 ngày tràn ngang
+  const APP_VERSION = 'v9.9.4 HARDENED';
 
-const SUPABASE_URL = 'https://bligxhjontmpbiqhxbxf.supabase.co';
+  // Tự nhận biết đã điền cấu hình hay chưa
+  const CONNECTED = SUPABASE_URL && !SUPABASE_URL.includes('XXXXX') && SUPABASE_ANON && !SUPABASE_ANON.includes('XXXXX');
 
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsaWd4aGpvbnRtcGJpcWh4YnhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MjQxMjMsImV4cCI6MjA5NDEwMDEyM30.7qddGQnwr4oaY8W5-3myARHEMmXrJam4WL9ngZxJz34';
-
-// Tự làm mới dữ liệu realtime mỗi 60 giây.
-// Đặt REFRESH_MS = 0 nếu muốn tắt tự làm mới.
-const REFRESH_MS = 60000;
-
-// Dữ liệu lịch sử/xu hướng chỉ cần làm mới thưa hơn để tránh gọi API quá nhiều.
-const TREND_REFRESH_MS = 30 * 60 * 1000;
-
-// Giới hạn chiều rộng SVG để tránh biểu đồ 90 ngày làm nặng trình duyệt.
-const TREND_MAX_SVG_WIDTH = 1400;
-
-const APP_VERSION = 'v9.9.4 HARDENED';
-
-// Kiểm tra đã cấu hình Supabase hay chưa.
-const CONNECTED =
-  Boolean(SUPABASE_URL) &&
-  !SUPABASE_URL.includes('XXXXX') &&
-  !SUPABASE_URL.includes('xxxxx') &&
-  Boolean(SUPABASE_ANON) &&
-  !SUPABASE_ANON.includes('XXXXX') &&
-  !SUPABASE_ANON.includes('eyJ...');
-
-// Storage an toàn:
-// - Ưu tiên sessionStorage.
-// - Nếu trình duyệt/iframe chặn sessionStorage thì dùng localStorage.
-// - Nếu cả hai đều bị chặn thì dùng bộ nhớ tạm trong RAM.
-function createSafeStorage() {
-  const memory = new Map();
-
-  for (const name of ['sessionStorage', 'localStorage']) {
-    try {
-      const storage = window[name];
-      const testKey = '__bms_storage_test__';
-
-      storage.setItem(testKey, '1');
-      storage.removeItem(testKey);
-
-      return {
-        getItem: (key) => storage.getItem(key),
-        setItem: (key, value) => storage.setItem(key, String(value)),
-        removeItem: (key) => storage.removeItem(key)
-      };
-    } catch (e) {
-      // Nếu storage này bị chặn thì thử storage tiếp theo.
+  // v9.8: storage fallback — ưu tiên sessionStorage; nếu trình duyệt/iframe chặn storage thì dùng memory.
+  function createSafeStorage() {
+    const memory = new Map();
+    for (const name of ['sessionStorage','localStorage']) {
+      try {
+        const s = window[name];
+        const k = '__bms_storage_test__';
+        s.setItem(k, '1'); s.removeItem(k);
+        return s;
+      } catch (e) {}
     }
+    return { getItem:k => memory.has(k) ? memory.get(k) : null, setItem:(k,v)=>memory.set(k,String(v)), removeItem:k=>memory.delete(k) };
   }
-
-  return {
-    getItem: (key) => memory.has(key) ? memory.get(key) : null,
-    setItem: (key, value) => memory.set(key, String(value)),
-    removeItem: (key) => memory.delete(key)
-  };
-}
-
-const BMS_STORAGE = createSafeStorage();
+  const BMS_STORAGE = createSafeStorage();
 
   /* ===== PHẦN 2 · TIỆN ÍCH ==================================== */
   // Toast — hiển thị thông báo không chặn (thay alert)
