@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hệ Thống BMS — CPC1 Hà Nội</title>
+<style>
+  /* ===== THEME TOKENS ===== */
+  [data-theme="dark"] {
+    --bg: #0e1521; --panel: #16202e; --panel-2: #1d2a3a; --line: #293749;
+    --text: #e9eef5; --muted: #8294a8;
+    --hero-1: #0c4a6e; --hero-2: #0e7490;
+    --row-hover: rgba(45,212,191,0.04);
+  }
+  [data-theme="light"] {
+    --bg: #f1f5f9; --panel: #ffffff; --panel-2: #f8fafc; --line: #e2e8f0;
+    --text: #1e293b; --muted: #64748b;
+    --hero-1: #0e7490; --hero-2: #0891b2;
+    --row-hover: rgba(13,148,136,0.06);
+  }
+  :root {
+    --teal: #14b8a6; --green: #22c55e; --amber: #f59e0b; --red: #ef4444;
+    --blue: #3b82f6; --gray: #94a3b8;
+  }
+  [data-theme="dark"] { --teal: #2dd4bf; --green: #4ade80; --amber: #fbbf24; --red: #f87171; --blue: #60a5fa; --gray: #8294a8; }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.5; transition: background 0.3s, color 0.3s;
+    min-height: 100vh;
+  }
+  [data-theme="dark"] body {
+    background-image: radial-gradient(circle at 15% -5%, rgba(45,212,191,0.07), transparent 35%),
+                      radial-gradient(circle at 90% 110%, rgba(96,165,250,0.06), transparent 40%);
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    background: linear-gradient(120deg, var(--hero-1) 0%, var(--hero-2) 100%);
+    padding: 0 28px; box-shadow: 0 2px 24px rgba(0,0,0,0.25);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-top { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand .logo { width: 46px; height: 46px; border-radius: 11px; background: rgba(255,255,255,0.95); display: flex; align-items: center; justify-content: center; font-size: 24px; border: 1px solid rgba(255,255,255,0.25); overflow: hidden; }
+  .brand .logo img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+  .brand h1 { font-size: 19px; font-weight: 700; color: #fff; }
+  .brand p { font-size: 12px; color: rgba(255,255,255,0.75); }
+  .header-right { display: flex; align-items: center; gap: 18px; }
+  .theme-toggle { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: #fff; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-size: 13px; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
+  .theme-toggle:hover { background: rgba(255,255,255,0.25); }
+  .user-box { text-align: right; font-size: 12px; color: rgba(255,255,255,0.85); display: flex; align-items: center; gap: 12px; }
+  .user-box .avatar { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: #fff; }
+  nav { display: flex; gap: 2px; overflow-x: auto; }
+  nav button { background: transparent; border: none; color: rgba(255,255,255,0.78); padding: 12px 18px; font-size: 14px; cursor: pointer; font-family: inherit; border-bottom: 3px solid transparent; transition: all 0.15s; font-weight: 500; white-space: nowrap; }
+  nav button:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  nav button.active { color: #fff; border-bottom-color: #fff; font-weight: 600; }
+
+  /* ===== PAGES ===== */
+  .page { display: none; max-width: 1320px; margin: 0 auto; padding: 28px; animation: fade 0.3s; }
+  .page.active { display: block; }
+  @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .demo-banner { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.35); padding: 10px 18px; font-size: 13px; color: var(--amber); border-radius: 10px; margin-bottom: 22px; }
+
+  /* ===== TOAST (v9.9.4 — thay alert) ===== */
+  #toastBox { position: fixed; top: 18px; right: 18px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; max-width: 360px; }
+  .toast { padding: 12px 16px; border-radius: 8px; font-size: 13.5px; line-height: 1.45; color: #fff; box-shadow: 0 6px 18px rgba(0,0,0,0.25); animation: toastIn 0.25s ease-out; word-wrap: break-word; }
+  .toast.error   { background: linear-gradient(135deg, #b91c1c, #dc2626); }
+  .toast.warning { background: linear-gradient(135deg, #b45309, #d97706); }
+  .toast.success { background: linear-gradient(135deg, #047857, #10b981); }
+  .toast.info    { background: linear-gradient(135deg, #1e40af, #3b82f6); }
+  .toast .toast-close { float: right; cursor: pointer; opacity: 0.8; margin-left: 8px; font-weight: 700; }
+  .toast .toast-close:hover { opacity: 1; }
+  @keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+  /* ===== SKELETON LOADING (v9.9.4) ===== */
+  .skel { background: linear-gradient(90deg, var(--panel-2) 25%, var(--line) 50%, var(--panel-2) 75%); background-size: 200% 100%; animation: skelShine 1.5s infinite; border-radius: 6px; min-height: 18px; }
+  @keyframes skelShine { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .card.loading .skel-block { display: block; margin: 8px 0; }
+
+  /* ===== HERO ===== */
+  .hero { background: linear-gradient(120deg, var(--hero-1), var(--hero-2)); border-radius: 18px; padding: 40px; margin-bottom: 28px; position: relative; overflow: hidden; }
+  .hero::after { content: '🏭'; position: absolute; right: 30px; top: 50%; transform: translateY(-50%); font-size: 120px; opacity: 0.12; }
+  .hero .tag { font-size: 13px; letter-spacing: 3px; color: rgba(255,255,255,0.9); text-transform: uppercase; margin-bottom: 8px; }
+  .hero h2 { font-size: 38px; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; color: #fff; }
+  .hero p { font-size: 15px; color: rgba(255,255,255,0.82); max-width: 540px; }
+  .hero .pillrow { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .hero .pillrow span { background: rgba(255,255,255,0.15); padding: 6px 14px; border-radius: 16px; font-size: 13px; color: #fff; }
+
+  .section-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; margin-top: 4px; }
+
+  /* ===== OPS STATUS BAR ===== */
+  .ops-status { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .ops-item { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 14px; }
+  .ops-item .ops-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+  .ops-item.ok .ops-dot { background: var(--green); box-shadow: 0 0 12px var(--green); }
+  .ops-item.warn .ops-dot { background: var(--amber); box-shadow: 0 0 12px var(--amber); }
+  .ops-item.crit .ops-dot { background: var(--red); box-shadow: 0 0 12px var(--red); animation: blink 1.4s infinite; }
+  .ops-item.nodata .ops-dot { background: var(--gray); }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+  .ops-item .ops-num { font-size: 22px; font-weight: 700; line-height: 1; }
+  .ops-item .ops-lbl { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .ops-item.crit { border-color: rgba(239,68,68,0.4); }
+
+  /* ===== QUICK ACCESS ===== */
+  .quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 32px; }
+  .quick-card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 22px; cursor: pointer; transition: all 0.18s; text-align: center; }
+  .quick-card:hover { transform: translateY(-3px); border-color: var(--teal); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+  .quick-card .ic { font-size: 30px; margin-bottom: 10px; }
+  .quick-card .t { font-size: 14px; font-weight: 600; }
+  .quick-card .d { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* ===== FILTERS ===== */
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; align-items: center; }
+  .filters .lbl { font-size: 13px; color: var(--muted); margin-right: 2px; }
+  .chip { background: var(--panel); border: 1px solid var(--line); color: var(--text); padding: 7px 15px; border-radius: 20px; font-size: 13px; cursor: pointer; transition: all 0.15s; }
+  .chip:hover { border-color: var(--teal); }
+  .chip.active { background: var(--teal); color: #fff; font-weight: 600; border-color: var(--teal); }
+  [data-theme="dark"] .chip.active { color: #06231f; }
+
+  /* ===== KPI ===== */
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px; position: relative; overflow: hidden; }
+  .kpi::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+  .kpi.k-green::before { background: var(--green); }
+  .kpi.k-amber::before { background: var(--amber); }
+  .kpi.k-red::before { background: var(--red); }
+  .kpi.k-blue::before { background: var(--blue); }
+  .kpi.k-gray::before { background: var(--gray); }
+  .kpi .label { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .kpi .value { font-size: 32px; font-weight: 700; letter-spacing: -1px; }
+  .kpi .value small { font-size: 16px; font-weight: 500; color: var(--muted); }
+  .kpi .sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  /* ===== CARDS / TABLES ===== */
+  .grid2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; margin-bottom: 24px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px; overflow: hidden; margin-bottom: 20px; }
+  .card h2 { font-size: 15px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .card .hint { font-size: 12px; color: var(--muted); font-weight: 400; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; color: var(--muted); font-weight: 600; padding: 9px 10px; border-bottom: 1px solid var(--line); font-size: 12px; }
+  td { padding: 10px; border-bottom: 1px solid var(--line); }
+  tr:last-child td { border-bottom: none; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover td { background: var(--row-hover); }
+  .pill { padding: 3px 9px; border-radius: 12px; font-size: 11px; font-weight: 600; display: inline-block; white-space: nowrap; }
+  .pill.p1 { background: rgba(239,68,68,0.18); color: var(--red); }
+  .pill.p2 { background: rgba(245,158,11,0.18); color: var(--amber); }
+  .pill.p3 { background: rgba(148,163,184,0.18); color: var(--gray); }
+  .bar-wrap { background: var(--line); border-radius: 6px; height: 8px; overflow: hidden; min-width: 64px; }
+  .bar { height: 100%; border-radius: 6px; }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .dot-green { background: var(--green); } .dot-blue { background: var(--blue); } .dot-amber { background: var(--amber); } .dot-red { background: var(--red); } .dot-gray { background: var(--gray); }
+
+  /* GMP severity text labels (ít icon, rõ ràng) */
+  .sev { font-weight: 700; font-size: 12px; letter-spacing: 0.3px; }
+  .sev.critical { color: var(--red); }
+  .sev.warning { color: var(--amber); }
+  .sev.normal { color: var(--green); }
+  .sev.nodata { color: var(--gray); }
+
+  /* status badges for events */
+  .st { padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; display: inline-block; }
+  .st.open { background: rgba(239,68,68,0.18); color: var(--red); }
+  .st.ack { background: rgba(245,158,11,0.18); color: var(--amber); }
+  .st.invest { background: rgba(59,130,246,0.18); color: var(--blue); }
+  .st.eng { background: rgba(168,85,247,0.18); color: #c084fc; }
+  .st.qa { background: rgba(45,212,191,0.18); color: var(--teal); }
+  .st.closed { background: rgba(148,163,184,0.18); color: var(--gray); }
+
+  /* action buttons */
+  .btn { border: 1px solid var(--line); background: var(--panel-2); color: var(--text); padding: 5px 11px; border-radius: 7px; font-size: 12px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .btn:hover { border-color: var(--teal); }
+  .btn.primary { background: var(--teal); color: #fff; border-color: var(--teal); }
+  [data-theme="dark"] .btn.primary { color: #06231f; }
+  .btn-group { display: flex; gap: 6px; }
+
+  /* CHART */
+  .chart { display: flex; align-items: flex-end; gap: 6px; height: 210px; padding-top: 20px; position: relative; }
+  .chart .col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; cursor: default; }
+  .chart .col .barbox { width: 100%; display: flex; align-items: flex-end; height: 155px; position: relative; }
+  .chart .col .fill { width: 100%; border-radius: 4px 4px 0 0; transition: height 0.4s; position: relative; }
+  .chart .col .day { font-size: 10px; color: var(--muted); white-space: nowrap; }
+  .chart .col .pct-top { font-size: 9px; color: var(--muted); position: absolute; top: -14px; left: 0; right: 0; text-align: center; }
+  .chart .col .inc-dot { position: absolute; top: -6px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 700; color: #fff; background: var(--red); border-radius: 8px; padding: 0 5px; line-height: 14px; }
+  /* đường mục tiêu 95% */
+  .chart .target-line { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--amber); z-index: 1; }
+  .chart .target-line .tl-lbl { position: absolute; right: 0; top: -8px; font-size: 9px; color: var(--amber); background: var(--panel); padding: 0 4px; }
+  /* tooltip */
+  .chart .col .tip { display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; font-size: 11px; line-height: 1.5; padding: 7px 10px; border-radius: 8px; white-space: nowrap; z-index: 5; box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+  .chart .col:hover .tip { display: block; }
+  .chart .col .tip b { color: #7dd3fc; }
+  .legend { display: flex; gap: 16px; font-size: 12px; color: var(--muted); margin-top: 12px; flex-wrap: wrap; }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+
+  /* DATA INTEGRITY PANEL */
+  .di-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .di-item { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .di-item .di-top { display: flex; align-items: center; justify-content: space-between; }
+  .di-item .di-label { font-size: 12px; color: var(--muted); }
+  .di-item .di-val { font-size: 20px; font-weight: 700; margin-top: 4px; }
+  .di-item .di-stat { font-size: 11px; font-weight: 600; }
+  .di-ok { color: var(--green); } .di-warn { color: var(--amber); } .di-bad { color: var(--red); }
+
+  /* TIMELINE */
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before { content: ''; position: absolute; left: 8px; top: 4px; bottom: 4px; width: 2px; background: var(--line); }
+  .tl-item { position: relative; padding-bottom: 18px; }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-item::before { content: ''; position: absolute; left: -24px; top: 3px; width: 12px; height: 12px; border-radius: 50%; background: var(--teal); border: 2px solid var(--bg); }
+  .tl-item .tl-time { font-size: 12px; color: var(--muted); }
+  .tl-item .tl-text { font-size: 13px; margin-top: 2px; }
+  .tl-item .tl-actor { font-size: 11px; color: var(--teal); font-weight: 600; }
+
+  /* DETAIL room mini-chart */
+  .mini-metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 18px; }
+  .mini-metric { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 14px; text-align: center; }
+  .mini-metric .mm-label { font-size: 12px; color: var(--muted); }
+  .mini-metric .mm-val { font-size: 24px; font-weight: 700; margin: 4px 0; }
+  .mini-metric .mm-range { font-size: 11px; color: var(--muted); }
+
+  /* placeholder */
+  .placeholder { text-align: center; padding: 70px 20px; color: var(--muted); }
+  .placeholder .ic { font-size: 56px; margin-bottom: 16px; opacity: 0.5; }
+  .placeholder h3 { font-size: 20px; color: var(--text); margin-bottom: 8px; }
+  .placeholder .badge { display: inline-block; background: rgba(45,212,191,0.15); color: var(--teal); padding: 5px 14px; border-radius: 14px; font-size: 12px; margin-top: 14px; }
+
+  /* modal */
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+  .modal-bg.show { display: flex; }
+  .modal { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; max-width: 720px; width: 100%; max-height: 86vh; overflow-y: auto; padding: 26px; }
+  .modal h2 { font-size: 19px; margin-bottom: 4px; }
+  .modal .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+  .modal .close-x { float: right; cursor: pointer; font-size: 22px; color: var(--muted); line-height: 1; }
+  .modal .close-x:hover { color: var(--text); }
+
+  footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px; border-top: 1px solid var(--line); margin-top: 20px; }
+  footer b { color: var(--text); }
+
+  @media (max-width: 980px) {
+    .quick-grid, .kpi-row, .ops-status, .di-grid { grid-template-columns: repeat(2, 1fr); }
+    .grid2, .mini-metrics { grid-template-columns: 1fr; }
+    .hero h2 { font-size: 28px; }
+  }
+
+  /* ===== TREND DASHBOARD ===== */
+  .trend-kpi-row .kpi .value { font-size: 28px; }
+  .trend-grid-wide { grid-template-columns: 1.6fr 0.9fr; }
+  .trend-summary-box { background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 14px; font-size: 13px; line-height: 1.65; color: var(--text); }
+  .trend-summary-box .line { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px dashed var(--line); padding: 7px 0; }
+  .trend-summary-box .line:last-child { border-bottom: none; }
+  .trend-delta { font-weight: 700; }
+  .trend-delta.good { color: var(--green); }
+  .trend-delta.bad { color: var(--red); }
+  .trend-delta.flat { color: var(--gray); }
+  .mini-spark { display:inline-flex; align-items:flex-end; gap:2px; height:18px; min-width:48px; vertical-align:middle; }
+  .mini-spark i { display:block; width:4px; background: var(--teal); border-radius:2px; opacity:.85; }
+  @media (max-width: 900px) { .trend-grid-wide { grid-template-columns: 1fr; } }
+
+  /* ===== V9.5 · XU HƯỚNG GMP INDIVIDUAL CHARTS ===== */
+  .trend-control-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; align-items: end; }
+  .trend-field label { display:block; font-size:12px; color: var(--muted); margin-bottom: 6px; }
+  .trend-select { width: 100%; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); border-radius: 10px; padding: 9px 10px; font-family: inherit; font-size: 13px; }
+  .trend-detail-panel { margin-top: 10px; border: 1px solid var(--line); background: var(--panel-2); border-radius: 12px; padding: 12px 14px; font-size: 13px; line-height: 1.55; color: var(--muted); }
+  .trend-detail-panel b { color: var(--text); }
+  .trend-detail-grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:8px; margin-top:8px; }
+  .trend-detail-grid div { background: rgba(255,255,255,.03); border:1px solid var(--line); border-radius:10px; padding:8px; }
+  .trend-period-grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:10px; }
+  .trend-period-card { background: var(--panel-2); border:1px solid var(--line); border-radius:14px; padding:12px; }
+  .trend-period-card h3 { margin:0 0 8px 0; font-size:14px; }
+  .trend-period-card .big { font-size:22px; font-weight:800; color:var(--text); }
+  .trend-period-card .small { font-size:12px; color:var(--muted); line-height:1.55; margin-top:6px; }
+  .trend-period-card.partial { border-color: rgba(245,158,11,.45); }
+  .trend-period-card.good { border-color: rgba(34,197,94,.38); }
+  .trend-period-card.bad { border-color: rgba(239,68,68,.45); }
+  .trend-hit { cursor:pointer; outline:none; }
+  .trend-hit:hover { filter: brightness(1.25); }
+  .trend-hour-line { fill:none; stroke: var(--blue); stroke-width:2.6; }
+  .trend-hour-area { fill: rgba(59,130,246,.13); }
+  @media (max-width: 980px) { .trend-period-grid, .trend-detail-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  @media (max-width: 560px) { .trend-period-grid, .trend-detail-grid { grid-template-columns: 1fr; } }
+
+  .trend-note { font-size: 12px; color: var(--muted); line-height: 1.55; }
+  .trend-chart-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 20px; }
+  .trend-individual-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .trend-mini-card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px; overflow: hidden; }
+  .trend-mini-card h3 { font-size: 13px; margin-bottom: 6px; display:flex; justify-content:space-between; gap:8px; align-items:center; }
+  .trend-mini-card .meta { font-size: 11px; color: var(--muted); margin-bottom: 8px; min-height: 18px; }
+  .trend-svg-wrap { width: 100%; min-height: 245px; overflow-x: auto; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); padding: 10px; }
+  .trend-svg-wrap.compact { min-height: 150px; padding: 8px; }
+  .trend-svg { width: 100%; height: 230px; min-width: 560px; display:block; }
+  .trend-svg.compact { height: 138px; min-width: 260px; }
+  .trend-axis { stroke: var(--line); stroke-width: 1; }
+  .trend-gridline { stroke: var(--line); stroke-width: 1; opacity: .55; }
+  .trend-target { stroke: var(--amber); stroke-dasharray: 5 5; stroke-width: 1.5; }
+  .trend-line { fill: none; stroke: var(--teal); stroke-width: 2.6; }
+  .trend-line.dq { stroke: var(--blue); stroke-width: 2; opacity: .9; }
+  .trend-area-fill { opacity: .12; fill: var(--teal); }
+  .trend-point { fill: var(--panel); stroke: var(--teal); stroke-width: 2; }
+  .trend-bar-warn { fill: var(--amber); opacity: .75; }
+  .trend-bar-crit { fill: var(--red); opacity: .75; }
+  .trend-label { fill: var(--muted); font-size: 10px; }
+  .trend-title-mini { fill: var(--text); font-size: 11px; font-weight: 600; }
+  .trend-badge { font-size: 11px; color: var(--muted); padding: 2px 7px; border: 1px solid var(--line); border-radius: 12px; white-space: nowrap; }
+  .trend-badge.bad { color: var(--red); border-color: rgba(239,68,68,.35); }
+  .trend-badge.good { color: var(--green); border-color: rgba(34,197,94,.35); }
+  .trend-badge.warn { color: var(--amber); border-color: rgba(245,158,11,.35); }
+  .trend-empty { color: var(--muted); font-size: 13px; padding: 24px; text-align:center; }
+  @media (max-width: 1100px) { .trend-individual-grid { grid-template-columns: repeat(2, 1fr); } .trend-control-panel { grid-template-columns: 1fr; } }
+  @media (max-width: 760px) { .trend-chart-grid, .trend-individual-grid { grid-template-columns: 1fr; } }
+
+
+</style>
+</head>
+<body>
+<!-- Toast container — hiển thị thông báo lỗi/cảnh báo/thành công không chặn UI -->
+<div id="toastBox" aria-live="polite" aria-atomic="true"></div>
+  <header>
+    <div class="header-top">
+      <div class="brand">
+        <div class="logo" id="brandLogo">🏭</div>
+        <div><h1>Hệ Thống BMS</h1><p>Giám sát HVAC phòng sạch — CPC1 Hà Nội</p></div>
+      </div>
+      <div class="header-right">
+        <button class="theme-toggle" id="refreshBtn" onclick="manualRefresh()" title="Tải lại dữ liệu ngay">🔄 <span id="lastUpdated">—</span></button>
+        <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">🌙 Tối</button>
+        <div class="user-box">
+          <div><b style="color:#fff" id="userBadge">Chưa đăng nhập</b><br><span style="font-size:12px">Bấm để chọn người dùng</span></div>
+          <button class="theme-toggle" onclick="showLogin()" style="margin-left:8px">👤 Đăng nhập</button>
+        </div>
+      </div>
+    </div>
+    <nav id="nav">
+      <button class="active" data-page="home">Tổng quan</button>
+      <button data-page="events">Sự cố đang xử lý</button>
+      <button data-page="rooms">Phòng &amp; AHU</button>
+      <button data-page="trend">Xu hướng GMP</button>
+      <button data-page="reports">Báo cáo</button>
+      <button data-page="audit">Nhật ký &amp; SOP</button>
+      <button data-page="settings">Cài đặt</button>
+    </nav>
+  </header>
+
+  <!-- ============ TỔNG QUAN ============ -->
+  <div class="page active" id="page-home">
+    <div class="demo-banner" id="demoBanner">⏳ Đang kiểm tra kết nối Supabase…</div>
+    <div class="hero">
+      <div class="tag">Tri thức · Tuân thủ · Toàn vẹn dữ liệu</div>
+      <h2>Giám sát HVAC chuẩn GMP</h2>
+      <p>Theo dõi chênh áp, nhiệt độ, độ ẩm 57 phòng sạch theo thời gian thực. Cảnh báo sự cố, báo cáo AI, audit trail ALCOA+.</p>
+      <div class="pillrow"><span>✅ 57 phòng</span><span>🏢 3 khu: C1 · C4 · Q2</span><span>🌀 8 AHU</span><span>📡 Cập nhật mỗi giờ</span></div>
+    </div>
+
+    <div class="section-title">🚦 Trạng thái vận hành ngay lúc này</div>
+    <div class="ops-status">
+      <div class="ops-item ok"><div class="ops-dot"></div><div><div class="ops-num" id="ops-ok">43</div><div class="ops-lbl">phòng đạt</div></div></div>
+      <div class="ops-item warn"><div class="ops-dot"></div><div><div class="ops-num" id="ops-warn">9</div><div class="ops-lbl">phòng không đạt</div></div></div>
+      <div class="ops-item crit"><div class="ops-dot"></div><div><div class="ops-num" id="ops-crit">5</div><div class="ops-lbl">sự cố P1 đang mở</div></div></div>
+      <div class="ops-item nodata"><div class="ops-dot"></div><div><div class="ops-num" id="ops-nodata">2</div><div class="ops-lbl">phòng thiếu dữ liệu</div></div></div>
+    </div>
+
+    <div class="section-title">⚡ Truy cập nhanh</div>
+    <div class="quick-grid">
+      <div class="quick-card" onclick="goPage('events')"><div class="ic">🔔</div><div class="t">Sự cố đang xử lý</div><div class="d">Cảnh báo &amp; ACK</div></div>
+      <div class="quick-card" onclick="goPage('rooms')"><div class="ic">🏢</div><div class="t">Phòng &amp; AHU</div><div class="d">57 phòng giám sát</div></div>
+      <div class="quick-card" onclick="goPage('trend')"><div class="ic">📈</div><div class="t">Xu hướng GMP</div><div class="d">7/30 ngày</div></div>
+      <div class="quick-card" onclick="goPage('reports')"><div class="ic">📋</div><div class="t">Báo cáo</div><div class="d">Ngày/tuần/tháng + AI</div></div>
+    </div>
+
+    <div class="section-title">📋 KPI tổng quan (3 trạng thái GMP)</div>
+    <div class="kpi-row">
+      <div class="kpi k-green"><div class="label">✅ Phòng ĐẠT</div><div class="value" id="kpi-dat">43<small>/57</small></div><div class="sub">compliance ≥ 80%, đủ dữ liệu</div></div>
+      <div class="kpi k-red"><div class="label">⛔ Phòng KHÔNG ĐẠT</div><div class="value" id="kpi-khong-dat">12<small>/57</small></div><div class="sub">compliance &lt; 80%</div></div>
+      <div class="kpi k-gray"><div class="label">⚫ KHÔNG ĐỦ DỮ LIỆU</div><div class="value" id="kpi-thieu-dl">2<small>/57</small></div><div class="sub">sensor không gửi đủ — KHÔNG coi là đạt</div></div>
+      <div class="kpi k-amber"><div class="label">⚠️ Sự cố đang mở</div><div class="value" id="kpi-su-co">14</div><div class="sub">phòng P1 trọng yếu</div></div>
+    </div>
+
+    <div class="card">
+      <h2>🛡️ Tính toàn vẹn dữ liệu <span class="hint">— điểm GMP quan trọng</span></h2>
+      <div class="di-grid">
+        <div class="di-item"><div class="di-top"><span class="di-label">Phòng đủ dữ liệu</span><span class="di-stat di-ok">96%</span></div><div class="di-val">55<small style="font-size:13px;color:var(--muted)">/57</small></div></div>
+        <div class="di-item"><div class="di-top"><span class="di-label">Phòng thiếu dữ liệu</span><span class="di-stat di-warn">⚫ chú ý</span></div><div class="di-val">2</div></div>
+        <div class="di-item"><div class="di-top"><span class="di-label">Sensor mất tín hiệu</span><span class="di-stat di-bad">cần kiểm tra</span></div><div class="di-val">3</div></div>
+        <div class="di-item"><div class="di-top"><span class="di-label">Workflow chạy gần nhất</span><span class="di-stat di-ok">✓ thành công</span></div><div class="di-val" style="font-size:15px">13:05 hôm nay</div></div>
+        <div class="di-item"><div class="di-top"><span class="di-label">Email cảnh báo gửi</span><span class="di-stat di-ok">✓ OK</span></div><div class="di-val" style="font-size:15px">12 gửi / 0 lỗi</div></div>
+        <div class="di-item"><div class="di-top"><span class="di-label">Sự cố chưa tiếp nhận</span><span class="di-stat di-bad">cần xử lý</span></div><div class="di-val">5</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SỰ CỐ ĐANG XỬ LÝ (TRUNG TÂM) ============ -->
+  <div class="page" id="page-events">
+    <div class="section-title">🔔 Sự cố đang xử lý <span class="hint" style="font-weight:400">— trung tâm vận hành GMP</span></div>
+    <div class="filters" data-filter-row="events">
+      <span class="lbl">Trạng thái:</span>
+      <span class="chip active" data-group="status" data-val="ALL">Tất cả</span><span class="chip" data-group="status" data-val="OPEN">Chưa xử lý</span><span class="chip" data-group="status" data-val="IPC_CHECKED_ABNORMAL">IPC: bất thường</span><span class="chip" data-group="status" data-val="MEP_NOTIFIED">Cần cơ điện</span><span class="chip" data-group="status" data-val="MEP_IN_PROGRESS">CĐ đang xử lý</span><span class="chip" data-group="status" data-val="MEP_COMPLETED">Chờ IPC kiểm lại</span><span class="chip" data-group="status" data-val="MEP_UNABLE_TO_PROCESS">Không xử lý được</span>
+    </div>
+    <div class="filters" data-filter-row="events">
+      <span class="lbl">Chỉ tiêu:</span>
+      <span class="chip active" data-group="sensor" data-val="ALL">Tất cả</span><span class="chip" data-group="sensor" data-val="DP">Chênh áp (DP)</span><span class="chip" data-group="sensor" data-val="RH">Độ ẩm (RH)</span><span class="chip" data-group="sensor" data-val="T">Nhiệt độ (T)</span><span class="chip" data-group="sensor" data-val="DATA">Thiếu dữ liệu</span>
+      <span class="lbl" style="margin-left:14px">Mức độ:</span>
+      <span class="chip active" data-group="sev" data-val="ALL">Tất cả</span><span class="chip" data-group="sev" data-val="CRITICAL">Nghiêm trọng</span><span class="chip" data-group="sev" data-val="WARNING">Cảnh báo</span>
+    </div>
+    <div class="card">
+      <table>
+        <thead><tr><th>Mã sự cố</th><th>Phòng</th><th>Ưu tiên</th><th>Chỉ tiêu</th><th>Mức độ</th><th>Bắt đầu</th><th>Kéo dài</th><th>Trạng thái</th><th>Người xử lý</th><th>Hành động</th></tr></thead>
+        <tbody id="tbody-events">
+          <tr><td colspan="10" style="text-align:center;color:var(--muted)">Đang tải…</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:12px;color:var(--muted);text-align:center">Bấm vào dòng sự cố để xem chi tiết + timeline xử lý (audit trail)</p>
+  </div>
+
+  <!-- ============ PHÒNG & AHU ============ -->
+  <div class="page" id="page-rooms">
+    <div class="section-title">🏢 Phòng &amp; AHU</div>
+    <div class="filters">
+      <span class="lbl">Khu:</span><span class="chip active">Tất cả</span><span class="chip">C1</span><span class="chip">C4</span><span class="chip">Q2</span>
+      <span class="lbl" style="margin-left:14px">Ưu tiên:</span><span class="chip active">Tất cả</span><span class="chip">P1</span><span class="chip">P2</span><span class="chip">P3</span>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h2>🔴 Phòng xấu nhất gần đây <span class="hint">— 3 ngày</span></h2>
+        <table>
+          <thead><tr><th>Phòng</th><th>Khu</th><th>Ưu tiên</th><th>Tỉ lệ đạt</th><th>Giờ nghiêm trọng</th></tr></thead>
+          <tbody id="tbody-worst">
+            <tr><td colspan="5" style="text-align:center;color:var(--muted)">Đang tải…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h2>🌀 Tỉ lệ đạt theo AHU</h2>
+        <table>
+          <thead><tr><th>AHU</th><th>Phòng</th><th>Đạt</th><th></th></tr></thead>
+          <tbody id="tbody-ahu">
+            <tr><td colspan="4" style="text-align:center;color:var(--muted)">Đang tải…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--muted);text-align:center">Bấm vào phòng để xem chi tiết: biểu đồ DP/RH/T 24h, ngưỡng, lịch sử sự cố</p>
+  </div>
+
+  <!-- ============ XU HƯỚNG GMP ============ -->
+  <div class="page" id="page-trend">
+    <div class="section-title">📈 Xu hướng GMP — ngày · phòng · AHU · khu vực · tổng hệ thống</div>
+    <div class="filters" id="trendRangeFilters">
+      <span class="lbl">Khoảng:</span><span class="chip">1 ngày</span><span class="chip">7 ngày</span><span class="chip active">30 ngày</span><span class="chip">90 ngày</span>
+      <span class="lbl" style="margin-left:14px">Cấp xem:</span><span class="chip active" data-scope="TOTAL">Tổng</span><span class="chip" data-scope="AREA">Khu vực</span><span class="chip" data-scope="AHU">AHU</span><span class="chip" data-scope="ROOM">Phòng</span>
+    </div>
+
+    <div class="trend-control-panel">
+      <div class="trend-field">
+        <label>Đối tượng individual chart</label>
+        <select id="trend-scope-select" class="trend-select"><option value="">Tự chọn đối tượng rủi ro cao nhất</option></select>
+      </div>
+      <div class="trend-field">
+        <label>Chỉ tiêu / sensor</label>
+        <select id="trend-sensor-select" class="trend-select">
+          <option value="ALL">Tổng hợp ALL</option>
+          <option value="DP">Chênh áp DP</option>
+          <option value="RH">Độ ẩm RH</option>
+          <option value="T">Nhiệt độ T</option>
+          <option value="SYSTEM">SYSTEM</option>
+          <option value="DATA">DATA</option>
+        </select>
+      </div>
+      <div class="trend-note">
+        Biểu đồ xu hướng dùng trục tung theo thời gian cảnh báo/nghiêm trọng (giờ). Chọn 1/7/30/90 ngày; nếu chưa đủ chu kỳ, hệ thống vẫn vẽ đoạn dữ liệu hiện có và ghi chú rõ mức độ thiếu dữ liệu. Bấm trực tiếp vào điểm/cột trên biểu đồ để xem dữ liệu tương ứng.
+      </div>
+    </div>
+
+    <div class="kpi-row trend-kpi-row">
+      <div class="kpi k-green"><div class="label">Tỉ lệ đạt hiện tại</div><div class="value" id="trend-kpi-compliance">—<small>%</small></div><div class="sub" id="trend-kpi-compliance-sub">Toàn hệ thống</div></div>
+      <div class="kpi k-blue"><div class="label">Độ đầy đủ dữ liệu</div><div class="value" id="trend-kpi-dq">—<small>%</small></div><div class="sub">Dữ liệu dùng để kết luận xu hướng</div></div>
+      <div class="kpi k-amber"><div class="label">Delta ngày / 7 ngày</div><div class="value" id="trend-kpi-delta">—<small>%</small></div><div class="sub" id="trend-kpi-dir">Chưa đủ dữ liệu</div></div>
+      <div class="kpi k-red"><div class="label">Giờ cảnh báo/nghiêm trọng</div><div class="value" id="trend-kpi-hours">—<small>h</small></div><div class="sub">Trục tung biểu đồ: giờ Warning + Critical</div></div>
+    </div>
+
+    <div class="card">
+      <h2>🧾 Báo cáo xu hướng nhanh <span class="hint">— 1 ngày / 7 ngày / 30 ngày / 90 ngày</span></h2>
+      <div class="trend-period-grid" id="trend-period-report">
+        <div class="trend-empty">Đang tải báo cáo chu kỳ…</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 id="trend-main-title">Individual chart — xu hướng giờ cảnh báo theo thời gian <span class="hint">— 30 ngày gần nhất</span></h2>
+      <div class="trend-svg-wrap" id="trend-main-chart"></div>
+      <div id="trend-point-detail" class="trend-detail-panel">Bấm vào một điểm/cột trên biểu đồ để xem chi tiết dữ liệu tương ứng.</div>
+      <div class="legend">
+        <span><span class="status-dot dot-blue"></span>Đường tổng giờ cảnh báo</span>
+        <span><span class="status-dot dot-amber"></span>Giờ Warning</span>
+        <span><span class="status-dot dot-red"></span>Giờ Critical</span>
+        <span><span class="status-dot dot-green"></span>Compliance/DQ hiển thị trong tooltip</span>
+      </div>
+    </div>
+
+    <div class="trend-individual-grid">
+      <div class="trend-mini-card"><h3>🌐 Tổng hệ thống <span class="trend-badge" id="trend-badge-total">—</span></h3><div class="meta" id="trend-meta-total">Toàn hệ thống</div><div class="trend-svg-wrap compact" id="trend-chart-total"></div></div>
+      <div class="trend-mini-card"><h3>🏢 Khu vực <span class="trend-badge" id="trend-badge-area">—</span></h3><div class="meta" id="trend-meta-area">Khu rủi ro cao nhất</div><div class="trend-svg-wrap compact" id="trend-chart-area"></div></div>
+      <div class="trend-mini-card"><h3>🌀 AHU <span class="trend-badge" id="trend-badge-ahu">—</span></h3><div class="meta" id="trend-meta-ahu">AHU rủi ro cao nhất</div><div class="trend-svg-wrap compact" id="trend-chart-ahu"></div></div>
+      <div class="trend-mini-card"><h3>🚪 Phòng <span class="trend-badge" id="trend-badge-room">—</span></h3><div class="meta" id="trend-meta-room">Phòng rủi ro cao nhất</div><div class="trend-svg-wrap compact" id="trend-chart-room"></div></div>
+    </div>
+
+    <div class="trend-chart-grid">
+      <div class="card">
+        <h2>📊 Xu hướng theo chỉ tiêu <span class="hint">— so sánh ALL/DP/RH/T</span></h2>
+        <div class="trend-svg-wrap" id="trend-sensor-compare-chart"></div>
+      </div>
+      <div class="card">
+        <h2>🚨 Sự cố phát sinh theo ngày <span class="hint">— đối chiếu với compliance</span></h2>
+        <div class="trend-svg-wrap" id="trend-event-chart"></div>
+      </div>
+    </div>
+
+    <div class="grid2 trend-grid-wide">
+      <div class="card">
+        <h2>🧭 Xếp hạng rủi ro xu hướng <span class="hint">— mới nhất</span></h2>
+        <table>
+          <thead><tr><th>Cấp</th><th>Đối tượng</th><th>Khu/AHU</th><th>Đạt</th><th>Delta ngày/7d</th><th>Đánh giá</th><th>Gợi ý</th></tr></thead>
+          <tbody id="tbody-trend-risk"><tr><td colspan="7" style="text-align:center;color:var(--muted)">Đang tải…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h2>📌 Tóm tắt tầng đang xem</h2>
+        <div id="trend-summary-box" class="trend-summary-box">Đang tải dữ liệu xu hướng…</div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h2>🏢 Xu hướng theo khu vực</h2>
+        <table>
+          <thead><tr><th>Khu</th><th>Đạt</th><th>Đủ dữ liệu</th><th>Delta ngày/7d</th><th>Giờ P1/P2</th><th>Đánh giá</th></tr></thead>
+          <tbody id="tbody-trend-area"><tr><td colspan="6" style="text-align:center;color:var(--muted)">Đang tải…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h2>🌀 Xu hướng theo AHU</h2>
+        <table>
+          <thead><tr><th>AHU</th><th>Khu</th><th>Đạt</th><th>Phòng xấu</th><th>Delta ngày/7d</th><th>Đánh giá</th></tr></thead>
+          <tbody id="tbody-trend-ahu"><tr><td colspan="6" style="text-align:center;color:var(--muted)">Đang tải…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🚪 Xu hướng theo phòng <span class="hint">— ưu tiên phòng có rủi ro cao</span></h2>
+      <table>
+        <thead><tr><th>Phòng</th><th>Khu</th><th>AHU</th><th>Ưu tiên</th><th>Đạt</th><th>Delta ngày/7d</th><th>Critical/Warning</th><th>Đánh giá</th><th>Gợi ý</th></tr></thead>
+        <tbody id="tbody-trend-room"><tr><td colspan="9" style="text-align:center;color:var(--muted)">Đang tải…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- ============ BÁO CÁO ============ -->
+  <div class="page" id="page-reports">
+    <div class="section-title">📋 Báo cáo &amp; Phân tích AI</div>
+    <div class="filters">
+      <span class="lbl">Loại:</span><span class="chip active">Ngày</span><span class="chip">Tuần</span><span class="chip">Tháng</span>
+    </div>
+    <div class="card">
+      <h2>🤖 Phân tích AI — Báo cáo ngày 23/05/2026 <span class="hint">(bản mẫu minh họa)</span></h2>
+      <div style="background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:16px;font-size:14px;line-height:1.7">
+        <p><b>Tóm tắt:</b> Trong ngày, 43/57 phòng đạt chuẩn (75.4%). Có 12 phòng không đạt, tập trung ở AHU-K01 và AHU03. Đáng chú ý phòng C4.R7 (chiết rót) có chênh áp thấp kéo dài 38 giờ tích lũy — nguy cơ ảnh hưởng vô trùng.</p>
+        <p style="margin-top:10px"><b>Khuyến nghị:</b> Ưu tiên kiểm tra AHU-K01 (3 phòng đều kém, có thể lỗi quạt/filter). Phòng C4.R7 cần can thiệp cơ điện gấp do là khu vực chiết rót trọng yếu.</p>
+        <p style="margin-top:10px;color:var(--muted);font-size:12px">Độ tin cậy: 0.86 · Dữ liệu đầy đủ 96% · Đây là bản mẫu minh họa</p>
+      </div>
+      <div style="margin-top:16px" class="btn-group">
+        <button class="btn primary">📥 Tải CSV</button>
+        <button class="btn">📄 Xuất PDF</button>
+        <button class="btn">✉️ Gửi email</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>📚 Lịch sử báo cáo</h2>
+      <table>
+        <thead><tr><th>Loại</th><th>Kỳ</th><th>Thời gian gửi</th><th>Người nhận</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+          <tr><td>Ngày</td><td>22/5</td><td>07:00 23/5</td><td>QA</td><td><span class="st closed">Đã gửi</span></td></tr>
+          <tr><td>Tuần</td><td>Tuần 20</td><td>07:00 19/5</td><td>QA, Manager</td><td><span class="st closed">Đã gửi</span></td></tr>
+          <tr><td>Ngày</td><td>21/5</td><td>07:00 22/5</td><td>QA</td><td><span class="st closed">Đã gửi</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============ AUDIT & SOP ============ -->
+  <div class="page" id="page-audit">
+    <div class="section-title">🛡️ Nhật ký truy vết &amp; SOP</div>
+    <div class="card">
+      <h2>📜 Nhật ký audit (ai làm gì, lúc nào) <span class="hint">— ALCOA+</span></h2>
+      <table>
+        <thead><tr><th>Thời gian</th><th>Người thực hiện</th><th>Hành động</th><th>Đối tượng</th><th>Chi tiết</th></tr></thead>
+        <tbody>
+          <tr><td>13:05 23/5</td><td>Hệ thống</td><td>Tạo sự cố</td><td>SC-1042 / C4.R7</td><td>Chênh áp nghiêm trọng</td></tr>
+          <tr><td>10:18 23/5</td><td>Nam (IPC)</td><td>Đã nhận + Đang kiểm tra</td><td>SC-1038 / C4.R1</td><td>Kiểm tra thực tế</td></tr>
+          <tr><td>09:45 23/5</td><td>Hoàn (QA)</td><td>Đóng sự cố</td><td>SC-1020 / C1.R5</td><td>Áp phục hồi</td></tr>
+          <tr><td>08:00 23/5</td><td>Hệ thống</td><td>Đổi cấu hình</td><td>Ngưỡng cảnh báo chênh áp</td><td>3 → 4 phút</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h2>📋 SOP &amp; Deviation/CAPA <span class="hint">— phục vụ thanh tra</span></h2>
+      <table>
+        <thead><tr><th>SOP</th><th>Áp dụng cho</th><th>Deviation</th><th>CAPA</th></tr></thead>
+        <tbody>
+          <tr><td>SOP-HVAC-005</td><td>Chênh áp phòng sạch</td><td><span class="st closed">Không</span></td><td><span class="st closed">Không</span></td></tr>
+          <tr><td>SOP-HVAC-008</td><td>Xử lý mất áp Grade A/B</td><td><span class="st ack">Có — DEV-2026-014</span></td><td><span class="st invest">Đang mở</span></td></tr>
+          <tr><td>PIC/S Annex 1</td><td>Tiêu chuẩn vô trùng</td><td>—</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============ CÀI ĐẶT ============ -->
+  <div class="page" id="page-settings">
+    <div class="section-title">⚙️ Cài đặt</div>
+    <div class="card">
+      <h2>🔌 Kết nối Supabase</h2>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Điền thông tin để dashboard lấy dữ liệu thật (sẽ hướng dẫn ở buổi nối Supabase).</p>
+      <table>
+        <tr><td style="width:200px;color:var(--muted)">Supabase URL</td><td><code>https://xxxxx.supabase.co</code> <span class="st closed">chưa nối</span></td></tr>
+        <tr><td style="color:var(--muted)">Anon key</td><td><code>eyJ...</code> <span class="st closed">chưa nối</span></td></tr>
+        <tr><td style="color:var(--muted)">Row Level Security</td><td><span class="st open">cần bật trước khi public</span></td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>🎚️ Ngưỡng cảnh báo (đọc từ bms_config)</h2>
+      <table>
+        <thead><tr><th>Tên khóa (trong bms_config)</th><th>Giá trị</th><th>Ý nghĩa</th></tr></thead>
+        <tbody>
+          <tr><td><code>dp_immediate_oos_minutes</code></td><td>5</td><td>Chênh áp NGHIÊM TRỌNG nếu vượt ngưỡng ≥ 5 phút</td></tr>
+          <tr><td><code>dp_warning_oos_minutes</code></td><td>3</td><td>Chênh áp CẢNH BÁO nếu vượt ngưỡng ≥ 3 phút</td></tr>
+          <tr><td><code>data_quality_min_pct</code></td><td>80</td><td>Dưới 80% = coi là thiếu dữ liệu</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h2>🧪 Kiểm tra hệ thống sau deploy <span class="hint">— Supabase / SQL 20 / Trend API</span></h2>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Dùng nút này sau khi upload GitHub Pages để kiểm tra nhanh các view/RPC phục vụ tab Xu hướng GMP.</p>
+      <div class="btn-group" style="margin-bottom:12px"><button class="btn primary" onclick="runSystemCheck()">🔍 Kiểm tra kết nối</button></div>
+      <div id="system-check-result" class="trend-summary-box">Chưa chạy kiểm tra.</div>
+    </div>
+  </div>
+
+  <!-- MODAL chi tiết -->
+  <div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
+    <div class="modal" id="modalContent"></div>
+  </div>
+
+  <footer>
+    <b>Hệ Thống BMS</b> · CPC1 Hà Nội · Phiên bản v9.9.1.1 FINAL<br>
+    Nguồn dữ liệu: Supabase (chưa kết nối) · Giám sát chuẩn GMP / PIC-S Annex 1
+  </footer>
+
+  <script>
+  /* ============================================================
+     HỆ THỐNG BMS GMP — CPC1 HÀ NỘI · DASHBOARD (web app)
+     Cấu trúc file này:
+       PHẦN 1  CẤU HÌNH        — điền URL + key Supabase ở đây
+       PHẦN 2  TIỆN ÍCH        — sb(), setText(), fmtTime()…
+       PHẦN 3  TRẠNG THÁI      — biến state lưu dữ liệu đang hiển thị
+       PHẦN 4  NẠP DỮ LIỆU     — loadAll() gọi từng phần độc lập
+       PHẦN 5  VẼ GIAO DIỆN    — render* đổ dữ liệu ra bảng/biểu đồ
+       PHẦN 6  BỘ LỌC          — chip lọc sự cố hoạt động thật
+       PHẦN 7  ĐĂNG NHẬP       — chọn người dùng (vai trò GMP)
+       PHẦN 8  THAO TÁC SỰ CỐ  — gọi RPC bms_event_action + nút theo vai trò
+       PHẦN 9  MODAL CHI TIẾT  — sự cố (timeline thật) + phòng
+       PHẦN 10 ĐIỀU HƯỚNG/THEME + TỰ LÀM MỚI + KHỞI ĐỘNG
+     ============================================================ */
+
+  /* ===== PHẦN 1 · CẤU HÌNH (CHỈ SỬA Ở ĐÂY) ===================== */
+  // Lấy 2 giá trị tại: Supabase → Project Settings → API
+  const SUPABASE_URL  = 'https://bligxhjontmpbiqhxbxf.supabase.co';   // ← THAY: Project URL
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsaWd4aGpvbnRtcGJpcWh4YnhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MjQxMjMsImV4cCI6MjA5NDEwMDEyM30.7qddGQnwr4oaY8W5-3myARHEMmXrJam4WL9ngZxJz34';                  // ← THAY: anon public key
+  const REFRESH_MS    = 60000;                          // tự làm mới dữ liệu realtime mỗi 60 giây (0 = tắt)
+  const TREND_REFRESH_MS = 30 * 60 * 1000;               // dữ liệu lịch sử/xu hướng chỉ làm mới 30 phút/lần
+  const TREND_MAX_SVG_WIDTH = 1400;                      // giới hạn DOM SVG, tránh chart 90/180 ngày tràn ngang
+  const APP_VERSION = 'v9.9.4 HARDENED';
+
+  // Tự nhận biết đã điền cấu hình hay chưa
+  const CONNECTED = SUPABASE_URL && !SUPABASE_URL.includes('XXXXX') && SUPABASE_ANON && !SUPABASE_ANON.includes('XXXXX');
+
+  // v9.8: storage fallback — ưu tiên sessionStorage; nếu trình duyệt/iframe chặn storage thì dùng memory.
+  function createSafeStorage() {
+    const memory = new Map();
+    for (const name of ['sessionStorage','localStorage']) {
+      try {
+        const s = window[name];
+        const k = '__bms_storage_test__';
+        s.setItem(k, '1'); s.removeItem(k);
+        return s;
+      } catch (e) {}
+    }
+    return { getItem:k => memory.has(k) ? memory.get(k) : null, setItem:(k,v)=>memory.set(k,String(v)), removeItem:k=>memory.delete(k) };
+  }
+  const BMS_STORAGE = createSafeStorage();
+
+  /* ===== PHẦN 2 · TIỆN ÍCH ==================================== */
+  // Toast — hiển thị thông báo không chặn (thay alert)
+  // kind: 'error' | 'warning' | 'success' | 'info'  ·  ttl ms (default 4500)
+  function toast(message, kind = 'info', ttlMs = 4500) {
+    const box = document.getElementById('toastBox');
+    if (!box) { console.warn('toastBox not found:', message); return; }
+    const el = document.createElement('div');
+    el.className = `toast ${kind}`;
+    el.innerHTML = `<span class="toast-close" aria-label="Đóng">×</span>${esc(message)}`;
+    el.querySelector('.toast-close').addEventListener('click', () => el.remove());
+    box.appendChild(el);
+    if (ttlMs > 0) setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, ttlMs);
+  }
+
+  // Dịch HTTP code sang tiếng Việt
+  function httpErrorVN(status, name) {
+    const map = {
+      401: 'Chưa đăng nhập hoặc khoá API hết hạn',
+      403: 'Không có quyền truy cập (kiểm tra GRANT trong Supabase)',
+      404: 'Không tìm thấy (kiểm tra view/RPC đã cài chưa)',
+      408: 'Hết thời gian chờ kết nối',
+      429: 'Quá nhiều yêu cầu, vui lòng đợi',
+      500: 'Lỗi máy chủ Supabase',
+      502: 'Cổng kết nối Supabase bị gián đoạn',
+      503: 'Dịch vụ Supabase tạm thời ngưng hoạt động',
+      504: 'Hết thời gian chờ phản hồi từ Supabase'
+    };
+    return `${name || ''} — ${map[status] || `Lỗi HTTP ${status}`}`;
+  }
+
+  // Gọi REST/RPC Supabase có timeout + abort; tránh bảng "Đang tải…" mãi khi cold start/mạng chậm.
+  function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+    if (options.signal) options.signal.addEventListener('abort', () => ctrl.abort(), { once: true });
+    return fetch(url, { ...options, signal: ctrl.signal }).finally(() => clearTimeout(timer));
+  }
+  async function sb(view, query = '', opts = {}) {
+    const url = `${SUPABASE_URL}/rest/v1/${view}${query ? '?' + query : ''}`;
+    const res = await fetchWithTimeout(url, {
+      headers: { apikey: SUPABASE_ANON, Authorization: 'Bearer ' + SUPABASE_ANON },
+      signal: opts.signal
+    }, opts.timeoutMs || 15000);
+    if (!res.ok) throw new Error(httpErrorVN(res.status, view));
+    return res.json();
+  }
+  async function rpc(fn, body = {}, opts = {}) {
+    const url = `${SUPABASE_URL}/rest/v1/rpc/${fn}`;
+    const authToken = BMS_STORAGE.getItem('bms_supabase_access_token') || SUPABASE_ANON;
+    const res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: { apikey: SUPABASE_ANON, Authorization: 'Bearer ' + authToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body || {}),
+      signal: opts.signal
+    }, opts.timeoutMs || 15000);
+    if (!res.ok) throw new Error(httpErrorVN(res.status, fn));
+    return res.json();
+  }
+  // Đổi text 1 phần tử mà KHÔNG xoá thẻ con bên trong (vd <small>/57</small>)
+  function setText(id, val) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.firstChild && el.firstChild.nodeType === 3) el.firstChild.nodeValue = val;
+    else el.textContent = val;
+  }
+  function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function fmtHM(d) { const t = new Date(d); return String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0'); }
+  function dateOnly(d) { return new Date(d).toISOString().slice(0,10); }
+  function dateDaysAgo(days) { const d = new Date(); d.setDate(d.getDate() - Number(days || 30)); return dateOnly(d); }
+  function isTrendPageActive() { return !!document.getElementById('page-trend')?.classList.contains('active'); }
+
+  /* ===== PHẦN 3 · TRẠNG THÁI (dữ liệu đang hiển thị) ========== */
+  // Lưu lại dữ liệu mỗi lần nạp, để modal + bộ lọc dùng lại mà không gọi mạng thêm.
+  const state = {
+    summary: null,
+    worst: [],
+    ahu: [],
+    history: [],
+    trendTotal: [],
+    trendArea: [],
+    trendAhu: [],
+    trendRoom: [],
+    trendRisk: [],
+    trendSeries: [],
+    trendEvents: [],
+    trendScopeOptions: [],
+    trendScope: 'TOTAL',
+    trendSensor: 'ALL',
+    trendSelectedId: '',
+    trendLoaded: false,
+    trendLoading: false,
+    trendLoadedDays: 0,
+    trendLastLoadedAt: 0,
+    trendCacheKey: '',
+    trendAbortController: null,
+    _trendLoadSeq: 0,
+    _trendLatestCache: {},
+    events: [],                 // toàn bộ sự cố đang mở (chưa lọc)
+    filters: { status:'ALL', sensor:'ALL', sev:'ALL' }
+  };
+
+  // Dữ liệu MẪU — chỉ dùng khi CHƯA điền Supabase, để xem trước giao diện.
+  const DEMO = {
+    summary: { phong_dat:43, phong_khong_dat:12, phong_thieu_du_lieu:2, su_co_dang_mo:14, su_co_p1_mo:5 },
+    worst: [
+      {room_id:'C4.R7', room_name:'Chiết rót', area:'C4', priority_level:2, ti_le_dat_pct:52, tong_gio_critical:38},
+      {room_id:'C1.R11',room_name:'Pha chế',  area:'C1', priority_level:1, ti_le_dat_pct:61, tong_gio_critical:29},
+      {room_id:'C4.R1', room_name:'Thay đồ',   area:'C4', priority_level:1, ti_le_dat_pct:68, tong_gio_critical:22},
+      {room_id:'C1.R14',room_name:'Hành lang', area:'C1', priority_level:3, ti_le_dat_pct:null,tong_gio_critical:0}
+    ],
+    ahu: [
+      {ahu_id:'AHU-K01',so_phong:3, ti_le_dat_pct:71},{ahu_id:'AHU03',so_phong:13,ti_le_dat_pct:82},
+      {ahu_id:'AHU01', so_phong:10,ti_le_dat_pct:88},{ahu_id:'AHU02',so_phong:9, ti_le_dat_pct:91},
+      {ahu_id:'AHU-K02',so_phong:9,ti_le_dat_pct:94},{ahu_id:'AHU04',so_phong:5, ti_le_dat_pct:97}
+    ],
+    history: [82,79,85,88,91,87,84,null,77,83,89,92,88,87,90,93,86,84,91,95,89,82,88,94,96,90,87,92,95,97].map((v,i,a)=>({
+      ngay:new Date(Date.now()-(a.length-1-i)*864e5).toISOString(),
+      ti_le_dat_tb_pct:v,
+      so_su_co: v==null?0:Math.max(0,Math.round((95-v)/3)),
+      so_su_co_nghiem_trong: v==null?0:(v<80?2:v<88?1:0),
+      tong_gio_critical: v==null?0:Math.max(0,Math.round((95-v)/2)),
+      danh_gia: v==null?'Thiếu dữ liệu':v>=95?'Tốt':v>=80?'Chú ý':'Kém'
+    })),
+    events: [
+      {event_id:'demo-1042', room_id:'C4.R7', sensor_type:'DP', priority_level:2, severity_current:'CRITICAL', current_status:'OPEN',          first_seen_at:new Date(Date.now()-7*36e5).toISOString(), gio_keo_dai:7.1},
+      {event_id:'demo-1041', room_id:'C1.R11',sensor_type:'DP', priority_level:1, severity_current:'CRITICAL', current_status:'OPEN',          first_seen_at:new Date(Date.now()-7*36e5).toISOString(), gio_keo_dai:7.1},
+      {event_id:'demo-1038', room_id:'C4.R1', sensor_type:'DP', priority_level:1, severity_current:'WARNING',  current_status:'ACKNOWLEDGED',  first_seen_at:new Date(Date.now()-5*36e5).toISOString(), gio_keo_dai:4.8},
+      {event_id:'demo-1035', room_id:'C1.R20',sensor_type:'RH', priority_level:1, severity_current:'WARNING',  current_status:'INVESTIGATING', first_seen_at:new Date(Date.now()-4*36e5).toISOString(), gio_keo_dai:3.6},
+      {event_id:'demo-1030', room_id:'Q2.R8', sensor_type:'DP', priority_level:1, severity_current:'WARNING',  current_status:'MEP_NOTIFIED',  first_seen_at:new Date(Date.now()-3*36e5).toISOString(), gio_keo_dai:3.0},
+      {event_id:'demo-1028', room_id:'C1.R14',sensor_type:'DATA',priority_level:3,severity_current:'NODATA',   current_status:'INVESTIGATING', first_seen_at:new Date(Date.now()-6*36e5).toISOString(), gio_keo_dai:6.1}
+    ]
+  };
+
+
+
+  function buildDemoTrend() {
+    const total = DEMO.history.map(h => ({...h, local_date:h.ngay, scope_type:'TOTAL', scope_id:'ALL', scope_name:'Toàn hệ thống', compliance_pct:h.ti_le_dat_tb_pct, avg_data_quality_pct:96, delta_7d_pct:null, trend_direction_vi:h.danh_gia, trend_assessment_vi:h.danh_gia, critical_hours:h.tong_gio_critical||0, warning_hours:Math.max(0,(h.so_su_co||0)*2), action_hint_vi:'Xem phân rã theo khu → AHU → phòng.', risk_score:100-(h.ti_le_dat_tb_pct||0)}));
+    total.forEach((r,i)=>{ const p=total[i-7]; if(p&&r.compliance_pct!=null&&p.compliance_pct!=null){r.delta_7d_pct=+(r.compliance_pct-p.compliance_pct).toFixed(1); r.trend_direction_vi=r.delta_7d_pct<=-5?'Xấu đi':r.delta_7d_pct>=5?'Cải thiện':'Ổn định';} });
+    const areas = ['C1','C4','Q2'].map((a,i)=>({scope_type:'AREA',scope_id:a,scope_name:a,area:a,local_date:new Date().toISOString(),compliance_pct:[91,84,96][i],avg_data_quality_pct:96,critical_hours:[6,18,0][i],warning_hours:[10,16,2][i],delta_7d_pct:[-3,-9,2][i],trend_direction_vi:['Ổn định','Xấu đi','Ổn định'][i],trend_assessment_vi:['Cần chú ý','Cần điều tra ưu tiên','Tốt'][i],action_hint_vi:'Xem AHU/phòng đóng góp nhiều nhất.',risk_score:[24,48,6][i]}));
+    const ahu = DEMO.ahu.map((a,i)=>({scope_type:'AHU',scope_id:a.ahu_id,scope_name:a.ahu_id,area:a.khu||(['C1','C4','Q2'][i%3]),ahu_id:a.ahu_id,local_date:new Date().toISOString(),compliance_pct:a.ti_le_dat_pct,avg_data_quality_pct:95,rooms_bad:a.ti_le_dat_pct<90?2:0,critical_hours:a.ti_le_dat_pct<80?12:2,warning_hours:a.ti_le_dat_pct<95?8:1,delta_7d_pct:a.ti_le_dat_pct<85?-7:2,trend_direction_vi:a.ti_le_dat_pct<85?'Xấu đi':'Ổn định',trend_assessment_vi:a.ti_le_dat_pct<80?'Cần điều tra ưu tiên':a.ti_le_dat_pct<95?'Cần chú ý':'Tốt',action_hint_vi:'Kiểm tra AHU/quạt/filter/damper nếu xu hướng xấu.',risk_score:100-a.ti_le_dat_pct+(a.ti_le_dat_pct<85?20:0)}));
+    const rooms = DEMO.worst.map((r,i)=>({scope_type:'ROOM',scope_id:r.room_id,scope_name:r.room_name||r.room_id,area:r.area,ahu_id:r.ahu_id||ahu[i%ahu.length]?.ahu_id,priority_level:r.priority_level,local_date:new Date().toISOString(),compliance_pct:r.ti_le_dat_pct,avg_data_quality_pct:r.ti_le_dat_pct==null?60:96,critical_hours:r.tong_gio_critical||0,warning_hours:Math.max(0,20-i*3),delta_7d_pct:r.ti_le_dat_pct==null?null:-(12-i*2),trend_direction_vi:r.ti_le_dat_pct==null?'Chưa đủ dữ liệu':(i<2?'Xấu đi':'Ổn định'),trend_assessment_vi:r.ti_le_dat_pct==null?'Thiếu dữ liệu':(r.ti_le_dat_pct<80?'Cần điều tra ưu tiên':'Cần chú ý'),action_hint_vi:r.ti_le_dat_pct==null?'Kiểm tra mất dữ liệu/FMS/sensor.':'Ưu tiên kiểm tra hiện trường và AHU liên quan.',risk_score:100-(r.ti_le_dat_pct||0)+(r.tong_gio_critical||0)}));
+    const sensorClone = (row, sensor, shift) => ({...row, sensor_type:sensor, compliance_pct: row.compliance_pct==null?null:Math.max(30, Math.min(100, Number(row.compliance_pct)+shift)), risk_score: Math.max(0, Number(row.risk_score||0)-shift)});
+    const allRows = [...total,...areas,...ahu,...rooms];
+    const series = [];
+    allRows.forEach(r => { series.push({...r, sensor_type:'ALL'}); series.push(sensorClone(r,'DP',-4)); series.push(sensorClone(r,'RH',2)); series.push(sensorClone(r,'T',4)); });
+    const eventDays = total.map((r,i)=>({local_date:r.local_date,scope_type:'TOTAL',scope_id:'ALL',opened_events:Math.max(0,Math.round((100-(r.compliance_pct||100))/8)),critical_events:r.critical_hours>5?1:0,warning_events:Math.max(0,Math.round((100-(r.compliance_pct||100))/10))}));
+    return {total, areas, ahu, rooms, series, eventDays, risk:[...rooms,...ahu,...areas,...total.slice(-1)].sort((a,b)=>(b.risk_score||0)-(a.risk_score||0))};
+  }
+
+  /* ===== PHẦN 4 · NẠP DỮ LIỆU =============================== */
+  // v9.8: tách dữ liệu realtime và dữ liệu lịch sử/xu hướng.
+  // - Mở trang lần đầu: chỉ tải realtime để dashboard nhẹ.
+  // - Tab Xu hướng GMP: lazy-load dữ liệu trend khi người dùng mở tab.
+  // - Auto refresh 60s: chỉ refresh realtime; trend refresh 30 phút/lần hoặc khi bấm tải lại.
+  function applyDemoData() {
+    state.summary = DEMO.summary; state.worst = DEMO.worst; state.ahu = DEMO.ahu;
+    state.history = DEMO.history; state.events = DEMO.events;
+    const dt = buildDemoTrend();
+    state.trendTotal = dt.total; state.trendArea = dt.areas; state.trendAhu = dt.ahu; state.trendRoom = dt.rooms;
+    state.trendSeries = dt.series; state.trendEvents = dt.eventDays; state.trendRisk = dt.risk; state.trendPeriodReport = buildDemoPeriodReport(dt.total);
+    state.trendLoaded = true; state.trendLoadedDays = TREND_DAYS; state.trendLastLoadedAt = Date.now();
+    renderSummary(); renderWorst(); renderAhu(); applyEventFilters(); renderTrendDashboard();
+    setBanner('demo'); syncSettings(); stampUpdated();
+  }
+
+  let _realtimeLoading = false;   // v9.9.4: chống gọi loadRealtime trùng lặp
+  async function loadRealtime() {
+    if (!CONNECTED) { applyDemoData(); return; }
+    if (_realtimeLoading) return;   // đang tải rồi, bỏ qua lần gọi này
+    _realtimeLoading = true;
+    setBanner('loading');
+    try {
+      const results = await Promise.allSettled([
+        sb('v_dash_summary').then(r => { state.summary = r[0]||null; renderSummary(); }),
+        sb('v_dash_worst_rooms','limit=8').then(r => { state.worst = r; renderWorst(); }),
+        sb('v_dash_ahu_compliance').then(r => { state.ahu = r; renderAhu(); }),
+        sb('v_dash_daily_history','order=ngay.asc&limit=30').then(r => { state.history = r; }),
+        sb('v_dash_open_events','limit=200').then(r => { state.events = r; applyEventFilters(); })
+      ]);
+      const fail = results.filter(x => x.status==='rejected');
+      setBanner(fail.length ? 'partial' : 'ok', fail);
+      if (fail.length) {
+        // Hiển thị toast tiếng Việt thay vì chỉ banner mỏng
+        toast(`Tải dữ liệu thành công nhưng ${fail.length}/5 view bị lỗi. Xem trang Cài đặt → Kiểm tra hệ thống.`, 'warning', 6000);
+      }
+      syncSettings(); stampUpdated();
+    } finally {
+      _realtimeLoading = false;
+    }
+  }
+
+  function setTrendLoadStatus(txt) {
+    const el = document.getElementById('trend-load-status');
+    if (el) el.textContent = txt;
+  }
+  function trendLoadingPlaceholders(msg='Đang tải dữ liệu xu hướng theo đối tượng đang xem…') {
+    ['trend-main-chart','trend-sensor-compare-chart','trend-event-chart'].forEach(id => { const el=document.getElementById(id); if(el) el.innerHTML = `<div class="trend-empty">${esc(msg)}</div>`; });
+  }
+  function pickScopeIdFromRisk(scope, sensor='ALL') {
+    if (scope === 'TOTAL') return 'ALL';
+    const r = (state.trendRisk||[])
+      .filter(x => x.scope_type === scope && ((x.sensor_type||'ALL') === sensor))
+      .sort((a,b)=>(b.risk_score||0)-(a.risk_score||0))[0];
+    return r ? r.scope_id : '';
+  }
+  function uniqueSeriesRequests(reqs) {
+    const seen = new Set();
+    return reqs.filter(r => { const k = `${r.scope}|${r.id}|${r.sensor}`; if (seen.has(k)) return false; seen.add(k); return true; });
+  }
+
+  async function loadTrendData(force=false) {
+    if (!CONNECTED) { applyDemoData(); return; }
+    const scope = activeScope();
+    const sensor = activeSensor();
+    const currentKey = `${TREND_DAYS}|${scope}|${sensor}|${state.trendSelectedId||''}`;
+    const freshEnough = state.trendLoaded && state.trendCacheKey === currentKey && (Date.now() - state.trendLastLoadedAt < TREND_REFRESH_MS);
+    if (!force && freshEnough) { renderTrendDashboard(); return; }
+    if (state.trendAbortController) { try { state.trendAbortController.abort(); } catch(e) {} }
+    const controller = new AbortController();
+    const seq = Date.now();
+    state._trendLoadSeq = seq;
+    state.trendAbortController = controller;
+    state.trendLoading = true;
+    setTrendLoadStatus('Đang tải dữ liệu xu hướng đã lọc từ Supabase…');
+    trendLoadingPlaceholders();
+    try {
+      // Bước 1: tải “shell” nhẹ: ranking latest + danh sách đối tượng. Không tải toàn bộ 180 ngày.
+      const [latestRows, optionRows] = await Promise.all([
+        rpc('bms_api_trend_scope_latest', { p_scope_type: null, p_sensor_type: sensor, p_limit: 160 }, { signal: controller.signal }),
+        rpc('bms_api_trend_scope_options', { p_scope_type: null, p_sensor_type: sensor, p_limit: 800 }, { signal: controller.signal })
+      ]);
+      if (state._trendLoadSeq !== seq) return;
+      state.trendRisk = latestRows || [];
+      state.trendScopeOptions = optionRows || [];
+      state._trendLatestCache = {};
+
+      const activeId = state.trendSelectedId || pickScopeIdFromRisk(scope, sensor) || (scope === 'TOTAL' ? 'ALL' : '');
+      const ids = {
+        TOTAL: 'ALL',
+        AREA: pickScopeIdFromRisk('AREA', sensor),
+        AHU: pickScopeIdFromRisk('AHU', sensor),
+        ROOM: pickScopeIdFromRisk('ROOM', sensor)
+      };
+      const requests = uniqueSeriesRequests([
+        { scope, id: activeId, sensor },
+        { scope: 'TOTAL', id: 'ALL', sensor },
+        { scope: 'AREA', id: ids.AREA, sensor },
+        { scope: 'AHU', id: ids.AHU, sensor },
+        { scope: 'ROOM', id: ids.ROOM, sensor },
+        { scope, id: activeId, sensor: 'ALL' },
+        { scope, id: activeId, sensor: 'DP' },
+        { scope, id: activeId, sensor: 'RH' },
+        { scope, id: activeId, sensor: 'T' }
+      ].filter(r => r.id || r.scope === 'TOTAL'));
+
+      // Bước 2: tải time-series nhỏ theo đúng đối tượng/chart đang hiển thị.
+      const seriesResults = await Promise.allSettled(requests.map(r =>
+        rpc('bms_api_trend_series', { p_scope_type: r.scope, p_scope_id: r.id || 'ALL', p_sensor_type: r.sensor, p_days: TREND_DAYS }, { signal: controller.signal })
+      ));
+      if (state._trendLoadSeq !== seq) return;
+      const series = [];
+      seriesResults.forEach(x => { if (x.status === 'fulfilled' && Array.isArray(x.value)) series.push(...x.value); });
+      state.trendSeries = series;
+      state.trendTotal = series.filter(r => r.scope_type === 'TOTAL');
+      state.trendArea = series.filter(r => r.scope_type === 'AREA');
+      state.trendAhu = series.filter(r => r.scope_type === 'AHU');
+      state.trendRoom = series.filter(r => r.scope_type === 'ROOM');
+
+      // Bước 3: tải event chart riêng + báo cáo chu kỳ 1/7/30/90 cho scope đang xem.
+      try {
+        state.trendEvents = await rpc('bms_api_trend_events', { p_scope_type: scope, p_scope_id: activeId || 'ALL', p_days: TREND_DAYS }, { signal: controller.signal });
+      } catch(e) { state.trendEvents = []; }
+      try {
+        state.trendPeriodReport = await rpc('bms_api_trend_period_report', { p_scope_type: scope, p_scope_id: activeId || 'ALL', p_sensor_type: sensor }, { signal: controller.signal });
+      } catch(e) { state.trendPeriodReport = []; }
+
+      state.trendLoaded = true;
+      state.trendLoadedDays = TREND_DAYS;
+      state.trendLastLoadedAt = Date.now();
+      state.trendCacheKey = currentKey;
+      state._trendLatestCache = {};
+      const failed = seriesResults.filter(x => x.status === 'rejected');
+      if (failed.length) setBanner('partial', failed);
+      renderTrendDashboard(); syncSettings(); stampUpdated();
+      setTrendLoadStatus(`Đã tải ${series.length} điểm dữ liệu xu hướng · ${requests.length} nhóm chart · ${TREND_DAYS} ngày`);
+    } catch (e) {
+      if (e.name !== 'AbortError') {
+        setBanner('partial', [{ reason: e }]);
+        trendLoadingPlaceholders('Không tải được dữ liệu xu hướng. Kiểm tra SQL 20, GRANT EXECUTE/SELECT và kết nối Supabase.');
+        setTrendLoadStatus('Lỗi tải trend: ' + e.message);
+      }
+    } finally {
+      if (state._trendLoadSeq === seq) state.trendLoading = false;
+    }
+  }
+
+  async function loadAll() {
+    await loadRealtime();
+    if (isTrendPageActive()) await loadTrendData(false);
+  }
+
+  function stampUpdated() {
+    const el = document.getElementById('lastUpdated');
+    if (el) el.textContent = fmtHM(Date.now());
+  }
+
+  // Banner trang chủ phản ánh ĐÚNG trạng thái thực tế
+  function setBanner(kind, fail) {
+    const b = document.getElementById('demoBanner'); if (!b) return;
+    const set = (bg,bd,c,txt) => { b.style.background=bg; b.style.borderColor=bd; b.style.color=c; b.textContent=txt; };
+    if (kind==='demo')     set('rgba(245,158,11,0.12)','rgba(245,158,11,0.35)','var(--amber)','⚠️ CHẾ ĐỘ XEM TRƯỚC — chưa điền Supabase URL/khoá API (xem trang Cài đặt). Đang hiển thị dữ liệu MẪU.');
+    else if (kind==='loading') set('rgba(59,130,246,0.12)','rgba(59,130,246,0.35)','var(--blue)','⏳ Đang tải dữ liệu thật từ Supabase…');
+    else if (kind==='ok')  set('rgba(34,197,94,0.12)','rgba(34,197,94,0.35)','var(--green)','✅ Đã kết nối Supabase — dữ liệu thật từ nhà máy (bao gồm cả dữ liệu thử nghiệm nếu có).');
+    else if (kind==='partial') set('rgba(245,158,11,0.12)','rgba(245,158,11,0.4)','var(--amber)','⚠️ Đã kết nối Supabase nhưng có view bị lỗi. Vào trang Cài đặt → "Kiểm tra hệ thống" để xem chi tiết.');
+  }
+
+  /* ===== PHẦN 5 · VẼ GIAO DIỆN =============================== */
+  function renderSummary() {
+    const s = state.summary; if (!s) return;
+    setText('kpi-dat', s.phong_dat ?? '—');
+    setText('kpi-khong-dat', s.phong_khong_dat ?? '—');
+    setText('kpi-thieu-dl', s.phong_thieu_du_lieu ?? '—');
+    setText('kpi-su-co', s.su_co_dang_mo ?? '—');
+    setText('ops-ok', s.phong_dat ?? '—');
+    setText('ops-warn', s.phong_khong_dat ?? '—');
+    setText('ops-crit', s.su_co_p1_mo ?? '—');
+    setText('ops-nodata', s.phong_thieu_du_lieu ?? '—');
+  }
+
+  function renderWorst() {
+    const tb = document.getElementById('tbody-worst'); if (!tb) return;
+    const rows = state.worst;
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted)">Chưa có dữ liệu</td></tr>'; return; }
+    tb.innerHTML = rows.map(r => {
+      const pct = r.ti_le_dat_pct;
+      const pcls = r.priority_level===1?'p1':r.priority_level===2?'p2':'p3';
+      const cell = pct==null
+        ? '<span class="sev nodata">KHÔNG ĐỦ DỮ LIỆU</span>'
+        : `<div style="display:flex;align-items:center;gap:8px"><div class="bar-wrap"><div class="bar" style="width:${pct}%;background:${pct<70?'var(--red)':pct<90?'var(--amber)':'var(--green)'}"></div></div>${pct}%</div>`;
+      return `<tr onclick="openRoom('${esc(r.room_id)}')"><td><b>${esc(r.room_id)}</b> ${esc(r.room_name||'')}</td><td>${esc(r.area||'')}</td><td><span class="pill ${pcls}">P${r.priority_level||3}</span></td><td>${cell}</td><td>${pct==null?'—':(r.tong_gio_critical||0)+'h'}</td></tr>`;
+    }).join('');
+  }
+
+  function renderAhu() {
+    const tb = document.getElementById('tbody-ahu'); if (!tb) return;
+    const rows = state.ahu;
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted)">Chưa có dữ liệu</td></tr>'; return; }
+    tb.innerHTML = rows.map(r => {
+      const pct = r.ti_le_dat_pct ?? 0;
+      const dot = pct>=95?'dot-green':pct>=80?'dot-amber':'dot-red';
+      const lbl = pct>=95?'Tốt':pct>=80?'Chú ý':'Kém';
+      return `<tr><td>${esc(r.ahu_id)}</td><td>${esc(r.so_phong)}</td><td>${pct}%</td><td><span class="status-dot ${dot}"></span>${lbl}</td></tr>`;
+    }).join('');
+  }
+
+
+  let TREND_DAYS = 30;   // khoảng hiển thị (1/7/30/90)
+
+  function trendRowsByScope(scope) {
+    if (state.trendSeries && state.trendSeries.length) {
+      return state.trendSeries.filter(r => r.scope_type === scope);
+    }
+    if (scope === 'AREA') return state.trendArea || [];
+    if (scope === 'AHU') return state.trendAhu || [];
+    if (scope === 'ROOM') return state.trendRoom || [];
+    return state.trendTotal || [];
+  }
+  function latestOf(rows, key='scope_id') {
+    const m = new Map();
+    rows.forEach(r => {
+      const k = r[key] || r.scope_id || 'ALL';
+      const old = m.get(k);
+      if (!old || new Date(r.local_date) > new Date(old.local_date)) m.set(k,r);
+    });
+    return [...m.values()];
+  }
+  function deltaClass(v) { if (v == null) return 'flat'; return v >= 5 ? 'good' : v <= -5 ? 'bad' : 'flat'; }
+  function fmtPct(v) { return v == null || Number.isNaN(Number(v)) ? '—' : Number(v).toFixed(1).replace('.0','') + '%'; }
+  function fmtDelta(v) { return v == null || Number.isNaN(Number(v)) ? '—' : (Number(v) > 0 ? '+' : '') + Number(v).toFixed(1).replace('.0','') + '%'; }
+  function dayLabel(d) { const x = new Date(d); return String(x.getDate()).padStart(2,'0') + '/' + String(x.getMonth()+1).padStart(2,'0'); }
+  function spark(values) {
+    const vals = values.filter(v => v != null).slice(-10);
+    if (!vals.length) return '';
+    return '<span class="mini-spark">' + vals.map(v => `<i style="height:${Math.max(3, Math.min(18, Number(v)/100*18))}px"></i>`).join('') + '</span>';
+  }
+  function sensorLabel(s) { return {ALL:'Tổng hợp',DP:'Chênh áp',RH:'Độ ẩm',T:'Nhiệt độ',SYSTEM:'SYSTEM',DATA:'DATA'}[s] || s || 'ALL'; }
+  function scopeLabel(s) { return {TOTAL:'Tổng hệ thống',AREA:'Khu vực',AHU:'AHU',ROOM:'Phòng'}[s] || s || 'Tổng'; }
+  function activeSensor() { return state.trendSensor || (document.getElementById('trend-sensor-select')?.value) || 'ALL'; }
+  function activeScope() { return state.trendScope || 'TOTAL'; }
+  function normalizeTrendRows(rows) { return [...(rows||[])].sort((a,b)=> new Date(a.local_date) - new Date(b.local_date)); }
+  function rowsFor(scope, id, sensor='ALL') {
+    let rows = trendRowsByScope(scope).filter(r => (r.sensor_type || 'ALL') === sensor);
+    if (id) rows = rows.filter(r => r.scope_id === id);
+    return normalizeTrendRows(rows).slice(-TREND_DAYS);
+  }
+  function chooseDefaultScopeId(scope, sensor='ALL') {
+    if (scope === 'TOTAL') return 'ALL';
+    const latest = latestAll(scope, sensor).sort((a,b)=>(Number(b.risk_score)||0)-(Number(a.risk_score)||0))[0];
+    return latest ? latest.scope_id : '';
+  }
+  function selectedScopeId() {
+    const select = document.getElementById('trend-scope-select');
+    if (state.trendSelectedId) return state.trendSelectedId;
+    if (select && select.value) return select.value;
+    return chooseDefaultScopeId(activeScope(), activeSensor());
+  }
+
+  function renderHistory() { renderTrendDashboard(); }
+
+  function trendHours(r) { return Number(r.critical_hours||0) + Number(r.warning_hours||0); }
+  function fmtHours(v) { return v == null || Number.isNaN(Number(v)) ? '—' : Number(v).toFixed(1).replace('.0','') + 'h'; }
+  function trendCoverageNote(rows) {
+    const n = (rows||[]).length;
+    if (!n) return 'Chưa có dữ liệu để vẽ xu hướng.';
+    if (n < TREND_DAYS) return `Chưa đủ chu kỳ ${TREND_DAYS} ngày; biểu đồ chỉ hiển thị ${n}/${TREND_DAYS} ngày dữ liệu hiện có.`;
+    return `Đủ dữ liệu ${n}/${TREND_DAYS} ngày cho chu kỳ đang xem.`;
+  }
+  function encodeTrendPayload(obj) { try { return encodeURIComponent(JSON.stringify(obj || {})); } catch(e) { return ''; } }
+  function showTrendPointDetail(payload) {
+    let d = {};
+    try { d = JSON.parse(decodeURIComponent(payload || '{}')); } catch(e) { d = {}; }
+    const el = document.getElementById('trend-point-detail'); if (!el) return;
+    el.innerHTML = `<b>${esc(d.scope_name || d.scope_id || 'Điểm dữ liệu')}</b> · ${esc(d.local_date_label || d.local_date || '')} · ${esc(sensorLabel(d.sensor_type || activeSensor()))}
+      <div class="trend-detail-grid">
+        <div><b>${fmtHours(d.alert_hours)}</b><br><span>Warning + Critical</span></div>
+        <div><b>${fmtHours(d.warning_hours)}</b><br><span>Warning</span></div>
+        <div><b>${fmtHours(d.critical_hours)}</b><br><span>Critical</span></div>
+        <div><b>${fmtPct(d.compliance_pct)}</b><br><span>Tỉ lệ đạt</span></div>
+        <div><b>${fmtPct(d.data_quality_pct)}</b><br><span>Đủ dữ liệu/DQ</span></div>
+        <div><b>${fmtDelta(d.delta_prev_day_pct)}</b><br><span>Delta ngày</span></div>
+        <div><b>${fmtDelta(d.delta_7d_pct)}</b><br><span>Delta 7 ngày</span></div>
+        <div><b>${esc(d.assessment || '—')}</b><br><span>Đánh giá</span></div>
+      </div>
+      <div style="margin-top:8px;color:var(--muted)">${esc(d.action_hint || '')}</div>`;
+  }
+  function buildDemoPeriodReport(rows) {
+    const sorted = normalizeTrendRows(rows || []);
+    return [1,7,30,90].map(days => {
+      const slice = sorted.slice(-days);
+      const latest = slice[slice.length-1] || {};
+      const warn = slice.reduce((a,r)=>a+Number(r.warning_hours||0),0);
+      const crit = slice.reduce((a,r)=>a+Number(r.critical_hours||0),0);
+      const avg = slice.length ? slice.reduce((a,r)=>a+Number(r.compliance_pct||0),0)/slice.length : null;
+      return {period_days:days, expected_days:days, available_days:slice.length, data_status:slice.length<days?'PARTIAL':'FULL', first_date:slice[0]?.local_date||null, latest_date:latest.local_date||null, latest_compliance_pct:latest.compliance_pct, avg_compliance_pct:avg, min_compliance_pct:slice.length?Math.min(...slice.map(r=>Number(r.compliance_pct||0))):null, latest_data_completeness_pct:latest.avg_data_quality_pct||latest.data_completeness_pct, total_warning_hours:warn, total_critical_hours:crit, total_alert_hours:warn+crit, total_opened_events:0, assessment_vi: crit>0?'Cần điều tra ưu tiên':'Theo dõi', trend_note_vi:slice.length<days?`Chưa đủ chu kỳ ${days} ngày; chỉ có ${slice.length} ngày dữ liệu mẫu.`:`Đủ dữ liệu ${days} ngày.`};
+    });
+  }
+  function renderTrendPeriodReport() {
+    const el = document.getElementById('trend-period-report'); if (!el) return;
+    const rows = state.trendPeriodReport || [];
+    if (!rows.length) { el.innerHTML = '<div class="trend-empty">Chưa có dữ liệu báo cáo chu kỳ 1/7/30/90 ngày</div>'; return; }
+    const cls = r => r.data_status==='FULL' ? 'good' : (r.data_status==='NO_DATA' ? 'bad' : 'partial');
+    el.innerHTML = rows.map(r => `<div class="trend-period-card ${cls(r)}">
+      <h3>${r.period_days} ngày <span class="trend-badge ${r.data_status==='FULL'?'good':r.data_status==='NO_DATA'?'bad':'warn'}">${esc(r.data_status||'')}</span></h3>
+      <div class="big">${fmtHours(r.total_alert_hours)}</div>
+      <div class="small">Warning ${fmtHours(r.total_warning_hours)} · Critical ${fmtHours(r.total_critical_hours)}</div>
+      <div class="small">Đạt cuối kỳ ${fmtPct(r.latest_compliance_pct)} · TB ${fmtPct(r.avg_compliance_pct)} · Dữ liệu ${r.available_days||0}/${r.expected_days||r.period_days}</div>
+      <div class="small"><b>${esc(r.assessment_vi||'')}</b><br>${esc(r.trend_note_vi||'')}</div>
+    </div>`).join('');
+  }
+
+  function renderTrendDashboard() {
+    state._trendLatestCache = {};
+    populateTrendSelect();
+    const scope = activeScope();
+    const sensor = activeSensor();
+    const id = selectedScopeId();
+    const chartRows = rowsFor(scope, id, sensor);
+    renderTrendKpis(chartRows, scope);
+    renderTrendPeriodReport();
+    renderTrendMainChart(chartRows, scope, id, sensor);
+    renderIndividualCards(sensor);
+    renderSensorCompare(scope, id);
+    renderEventChart(scope, id);
+    renderTrendTables();
+    renderTrendSummary(scope);
+  }
+
+  function pathForSeries(rows, field, plot, invert=true) {
+    const pts = rows.map((r,i)=>({x: plot.x0 + (rows.length===1 ? plot.w/2 : i*plot.w/(rows.length-1)), yv: r[field]})).filter(p => p.yv != null && !Number.isNaN(Number(p.yv)));
+    if (!pts.length) return '';
+    return pts.map((p,i)=>{
+      const y = invert ? plot.y0 + plot.h - (Math.max(0, Math.min(100, Number(p.yv))) / 100) * plot.h : plot.y0 + plot.h - Number(p.yv);
+      return (i?'L':'M') + p.x.toFixed(1) + ' ' + y.toFixed(1);
+    }).join(' ');
+  }
+
+  function renderSvgTimeChart(elId, rows, opts={}) {
+    const el = document.getElementById(elId); if (!el) return;
+    rows = normalizeTrendRows(rows || []);
+    if (!rows.length) { el.innerHTML = '<div class="trend-empty">Chưa có dữ liệu xu hướng ngày</div>'; return; }
+    const compact = !!opts.compact;
+    const W = compact ? 340 : Math.min(Math.max(640, rows.length * 34), TREND_MAX_SVG_WIDTH);
+    const H = compact ? 138 : 244;
+    const m = compact ? {l:32,r:14,t:18,b:28} : {l:54,r:22,t:24,b:46};
+    const plot = {x0:m.l, y0:m.t, w:W-m.l-m.r, h:H-m.t-m.b};
+    const maxHoursRaw = Math.max(0, ...rows.map(r => trendHours(r)));
+    const maxHours = Math.max(1, Math.ceil(maxHoursRaw * 1.18));
+    const hourY = v => plot.y0 + plot.h - (Math.max(0, Number(v||0)) / maxHours) * plot.h;
+    const pts = rows.map((r,i)=>({
+      r,
+      x: plot.x0 + (rows.length===1 ? plot.w/2 : i*plot.w/(rows.length-1)),
+      h: trendHours(r)
+    }));
+    const hourPath = pts.map((p,i)=>(i?'L':'M') + p.x.toFixed(1) + ' ' + hourY(p.h).toFixed(1)).join(' ');
+    const areaPath = hourPath ? `${hourPath} L ${(pts[pts.length-1].x).toFixed(1)} ${plot.y0+plot.h} L ${(pts[0].x).toFixed(1)} ${plot.y0+plot.h} Z` : '';
+    let bars = '', points = '', labels = '';
+    pts.forEach((p,i)=>{
+      const r = p.r;
+      const crit = Number(r.critical_hours||0), warn = Number(r.warning_hours||0), total = crit + warn;
+      const bw = compact ? 4 : Math.max(6, Math.min(16, plot.w/Math.max(rows.length,1)*.42));
+      const baseY = plot.y0 + plot.h;
+      const warnH = (warn/maxHours)*plot.h;
+      const critH = (crit/maxHours)*plot.h;
+      const payload = encodeTrendPayload({
+        local_date:r.local_date, local_date_label:dayLabel(r.local_date), scope_type:r.scope_type, scope_id:r.scope_id, scope_name:r.scope_name,
+        sensor_type:r.sensor_type || opts.sensor || activeSensor(), warning_hours:warn, critical_hours:crit, alert_hours:total,
+        compliance_pct:r.compliance_pct, data_quality_pct:r.avg_data_quality_pct ?? r.data_completeness_pct,
+        delta_prev_day_pct:r.delta_prev_day_pct, delta_7d_pct:r.delta_7d_pct, assessment:r.trend_assessment_vi, action_hint:r.action_hint_vi
+      });
+      if (warnH > 0) bars += `<rect class="trend-bar-warn trend-hit" tabindex="0" onclick="showTrendPointDetail('${payload}')" x="${(p.x-bw/2).toFixed(1)}" y="${(baseY-warnH).toFixed(1)}" width="${bw}" height="${warnH.toFixed(1)}"><title>${dayLabel(r.local_date)} Warning: ${warn}h</title></rect>`;
+      if (critH > 0) bars += `<rect class="trend-bar-crit trend-hit" tabindex="0" onclick="showTrendPointDetail('${payload}')" x="${(p.x-bw/2).toFixed(1)}" y="${(baseY-warnH-critH).toFixed(1)}" width="${bw}" height="${critH.toFixed(1)}"><title>${dayLabel(r.local_date)} Critical: ${crit}h</title></rect>`;
+      const y = hourY(total);
+      points += `<circle class="trend-point trend-hit" tabindex="0" onclick="showTrendPointDetail('${payload}')" cx="${p.x.toFixed(1)}" cy="${y.toFixed(1)}" r="${compact?2.7:4.0}"><title>${dayLabel(r.local_date)}\nTổng giờ cảnh báo: ${total}h\nWarning/Critical: ${warn}/${crit}h\nĐạt: ${fmtPct(r.compliance_pct)}\nDQ: ${fmtPct(r.avg_data_quality_pct ?? r.data_completeness_pct)}\nDelta ngày: ${fmtDelta(r.delta_prev_day_pct)}\nDelta 7d: ${fmtDelta(r.delta_7d_pct)}\n${esc(r.trend_assessment_vi||'')}</title></circle>`;
+      if (!compact && (i===0 || i===rows.length-1 || i % Math.ceil(rows.length/6) === 0)) labels += `<text class="trend-label" x="${p.x.toFixed(1)}" y="${H-12}" text-anchor="middle">${dayLabel(r.local_date)}</text>`;
+    });
+    const first = rows[0], last = rows[rows.length-1];
+    const title = opts.title || `${esc(last.scope_name || last.scope_id || '')} · ${sensorLabel(last.sensor_type || opts.sensor || 'ALL')}`;
+    const half = maxHours/2;
+    const svg = `<svg class="trend-svg ${compact?'compact':''}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+      <line class="trend-gridline" x1="${plot.x0}" x2="${plot.x0+plot.w}" y1="${plot.y0}" y2="${plot.y0}" />
+      <line class="trend-gridline" x1="${plot.x0}" x2="${plot.x0+plot.w}" y1="${plot.y0+plot.h/2}" y2="${plot.y0+plot.h/2}" />
+      <line class="trend-axis" x1="${plot.x0}" x2="${plot.x0+plot.w}" y1="${plot.y0+plot.h}" y2="${plot.y0+plot.h}" />
+      ${areaPath?`<path class="trend-hour-area" d="${areaPath}" />`:''}
+      ${bars}
+      ${hourPath?`<path class="trend-hour-line" d="${hourPath}" />`:''}
+      ${points}
+      <text class="trend-label" x="${plot.x0-6}" y="${plot.y0+4}" text-anchor="end">${fmtHours(maxHours)}</text>
+      <text class="trend-label" x="${plot.x0-6}" y="${plot.y0+plot.h/2+4}" text-anchor="end">${fmtHours(half)}</text>
+      <text class="trend-label" x="${plot.x0-6}" y="${plot.y0+plot.h+4}" text-anchor="end">0h</text>
+      <text class="trend-label" x="${plot.x0}" y="${plot.y0-8}">Trục tung: giờ Warning + Critical</text>
+      ${compact?`<text class="trend-title-mini" x="${plot.x0}" y="14">${title}</text>`:''}
+      ${labels}
+    </svg>`;
+    const note = trendCoverageNote(rows);
+    el.innerHTML = svg + (!compact ? `<div class="trend-note" style="margin-top:8px">${esc(title)} · ${dayLabel(first.local_date)} → ${dayLabel(last.local_date)} · Điểm cuối: ${fmtHours(trendHours(last))} cảnh báo · Đạt: ${fmtPct(last.compliance_pct)} · ${esc(note)}</div>` : '');
+  }
+
+  function renderTrendMainChart(rows, scope, id, sensor) {
+    const latest = rows[rows.length-1] || {};
+    const title = `${scopeLabel(scope)} ${id || ''} · ${sensorLabel(sensor)} · xu hướng giờ cảnh báo/nghiêm trọng`;
+    renderSvgTimeChart('trend-main-chart', rows, {title, sensor});
+    const h = document.getElementById('trend-main-title');
+    if (h) h.innerHTML = `Individual chart — ${esc(scopeLabel(scope))} <b>${esc(id || latest.scope_id || '')}</b> <span class="hint">— ${sensorLabel(sensor)}, trục tung theo giờ, ${rows.length}/${TREND_DAYS} ngày</span>`;
+  }
+
+  function renderIndividualCards(sensor='ALL') {
+    const items = [
+      ['TOTAL','ALL','trend-chart-total','trend-meta-total','trend-badge-total'],
+      ['AREA',chooseDefaultScopeId('AREA',sensor),'trend-chart-area','trend-meta-area','trend-badge-area'],
+      ['AHU',chooseDefaultScopeId('AHU',sensor),'trend-chart-ahu','trend-meta-ahu','trend-badge-ahu'],
+      ['ROOM',chooseDefaultScopeId('ROOM',sensor),'trend-chart-room','trend-meta-room','trend-badge-room']
+    ];
+    items.forEach(([scope,id,chartId,metaId,badgeId]) => {
+      const rows = rowsFor(scope, id, sensor);
+      const latest = rows[rows.length-1] || {};
+      renderSvgTimeChart(chartId, rows, {compact:true, title:`${latest.scope_name || id || scope} · ${sensorLabel(sensor)}`, sensor});
+      const meta = document.getElementById(metaId); if (meta) meta.textContent = latest.scope_name ? `${latest.scope_id} — ${latest.scope_name}` : (id || 'Chưa có dữ liệu');
+      const badge = document.getElementById(badgeId); if (badge) { badge.textContent = fmtPct(latest.compliance_pct); badge.className = 'trend-badge ' + ((latest.compliance_pct||0)>=95?'good':(latest.compliance_pct||0)>=80?'warn':'bad'); }
+    });
+  }
+
+  function renderSensorCompare(scope, id) {
+    const el = document.getElementById('trend-sensor-compare-chart'); if (!el) return;
+    const sensors = ['ALL','DP','RH','T'];
+    const cards = sensors.map(s => {
+      const rows = rowsFor(scope, id, s);
+      const latest = rows[rows.length-1] || {};
+      const tmpId = `tmp-${scope}-${id}-${s}`.replace(/[^a-zA-Z0-9_-]/g,'-');
+      return `<div class="trend-mini-card" style="margin-bottom:10px"><h3>${sensorLabel(s)} <span class="trend-badge ${deltaClass(latest.delta_7d_pct)}">${fmtDelta(latest.delta_7d_pct)}</span></h3><div class="meta">${fmtPct(latest.compliance_pct)} · ${esc(latest.trend_assessment_vi||'')}</div><div class="trend-svg-wrap compact" id="${tmpId}"></div></div>`;
+    }).join('');
+    el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">${cards}</div>`;
+    sensors.forEach(s => {
+      const tmpId = `tmp-${scope}-${id}-${s}`.replace(/[^a-zA-Z0-9_-]/g,'-');
+      renderSvgTimeChart(tmpId, rowsFor(scope, id, s), {compact:true, title:sensorLabel(s), sensor:s});
+    });
+  }
+
+  function renderEventChart(scope, id) {
+    const el = document.getElementById('trend-event-chart'); if (!el) return;
+    const rows = normalizeTrendRows((state.trendEvents||[]).filter(r => r.scope_type===scope && (!id || r.scope_id===id)).slice(-TREND_DAYS));
+    if (!rows.length) { el.innerHTML = '<div class="trend-empty">Chưa có dữ liệu sự cố phát sinh theo ngày</div>'; return; }
+    const W = Math.min(Math.max(520, rows.length*34), TREND_MAX_SVG_WIDTH), H=230, m={l:44,r:18,t:22,b:42}; const plot={x0:m.l,y0:m.t,w:W-m.l-m.r,h:H-m.t-m.b};
+    const maxV = Math.max(1,...rows.map(r=>Number(r.opened_events||0)));
+    let bars='', labels='';
+    rows.forEach((r,i)=>{
+      const x = plot.x0 + (rows.length===1?plot.w/2:i*plot.w/(rows.length-1));
+      const bw = Math.max(8, Math.min(18, plot.w/rows.length*.55));
+      const crit=Number(r.critical_events||0), warn=Number(r.warning_events||0), total=Number(r.opened_events||0);
+      const h = total/maxV*plot.h*.82, critH = h*(crit/(total||1)), warnH = h-critH;
+      const base = plot.y0+plot.h;
+      const payload = encodeTrendPayload({local_date:r.local_date, local_date_label:dayLabel(r.local_date), scope_type:r.scope_type, scope_id:r.scope_id, scope_name:r.scope_name, warning_hours:warn, critical_hours:crit, alert_hours:total, compliance_pct:null, data_quality_pct:null, delta_prev_day_pct:null, delta_7d_pct:null, assessment:'Sự cố phát sinh trong ngày', action_hint:`Tổng ${total} sự cố mở mới; Warning ${warn}; Critical ${crit}`});
+      if (warnH>0) bars += `<rect class="trend-bar-warn trend-hit" onclick="showTrendPointDetail('${payload}')" x="${(x-bw/2).toFixed(1)}" y="${(base-warnH).toFixed(1)}" width="${bw}" height="${warnH.toFixed(1)}"><title>${dayLabel(r.local_date)} Warning: ${warn}</title></rect>`;
+      if (critH>0) bars += `<rect class="trend-bar-crit trend-hit" onclick="showTrendPointDetail('${payload}')" x="${(x-bw/2).toFixed(1)}" y="${(base-h).toFixed(1)}" width="${bw}" height="${critH.toFixed(1)}"><title>${dayLabel(r.local_date)} Critical: ${crit}</title></rect>`;
+      if (i===0 || i===rows.length-1 || i % Math.ceil(rows.length/6)===0) labels += `<text class="trend-label" x="${x.toFixed(1)}" y="${H-12}" text-anchor="middle">${dayLabel(r.local_date)}</text>`;
+    });
+    el.innerHTML = `<svg class="trend-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet"><line class="trend-axis" x1="${plot.x0}" x2="${plot.x0+plot.w}" y1="${plot.y0+plot.h}" y2="${plot.y0+plot.h}" />${bars}<text class="trend-label" x="${plot.x0}" y="${plot.y0-6}">Sự cố/ngày</text>${labels}</svg><div class="trend-note" style="margin-top:8px">Cột vàng: Warning; cột đỏ: Critical. Bấm vào cột để xem chi tiết. ${esc(trendCoverageNote(rows))}</div>`;
+  }
+
+  function renderTrendKpis(rows, scope) {
+    const latest = rows[rows.length-1] || {};
+    setText('trend-kpi-compliance', latest.compliance_pct==null?'—':String(Number(latest.compliance_pct).toFixed(1).replace('.0','')));
+    setText('trend-kpi-dq', latest.avg_data_quality_pct==null?(latest.data_completeness_pct==null?'—':String(Number(latest.data_completeness_pct).toFixed(1).replace('.0',''))):String(Number(latest.avg_data_quality_pct).toFixed(1).replace('.0','')));
+    const d = latest.delta_prev_day_pct != null ? latest.delta_prev_day_pct : latest.delta_7d_pct;
+    setText('trend-kpi-delta', d==null?'—':(d>0?'+':'')+String(Number(d).toFixed(1).replace('.0','')));
+    setText('trend-kpi-hours', String(Number(latest.critical_hours||0)+Number(latest.warning_hours||0)));
+    const sub = document.getElementById('trend-kpi-compliance-sub'); if (sub) sub.textContent = `${latest.scope_name || (scope==='TOTAL'?'Toàn hệ thống':scope)} · ${sensorLabel(latest.sensor_type || activeSensor())}`;
+    const dir = document.getElementById('trend-kpi-dir'); if (dir) dir.textContent = `${latest.trend_direction_vi || 'Chưa đủ dữ liệu'} · 7d ${fmtDelta(latest.delta_7d_pct)}`;
+  }
+
+  function trendRowHtml(r, cols='risk') {
+    const delta = `<span class="trend-delta ${deltaClass(r.delta_7d_pct)}">${fmtDelta(r.delta_prev_day_pct)} / ${fmtDelta(r.delta_7d_pct)}</span>`;
+    const assessClass = (r.trend_assessment_vi||'').includes('Tốt')?'normal':(r.trend_assessment_vi||'').includes('ưu tiên')||(r.trend_assessment_vi||'').includes('Kém')?'critical':'warning';
+    if (cols==='area') return `<tr><td><b>${esc(r.scope_id)}</b></td><td>${fmtPct(r.compliance_pct)}</td><td>${fmtPct(r.data_completeness_pct ?? r.avg_data_quality_pct)}</td><td>${delta}</td><td>${Number(r.critical_hours||0)+Number(r.warning_hours||0)}h</td><td><span class="sev ${assessClass}">${esc(r.trend_assessment_vi||'')}</span></td></tr>`;
+    if (cols==='ahu') return `<tr><td><b>${esc(r.scope_id)}</b></td><td>${esc(r.area||'')}</td><td>${fmtPct(r.compliance_pct)}</td><td>${r.rooms_bad ?? '—'}</td><td>${delta}</td><td><span class="sev ${assessClass}">${esc(r.trend_assessment_vi||'')}</span></td></tr>`;
+    if (cols==='room') return `<tr onclick="openRoom('${esc(r.scope_id)}')"><td><b>${esc(r.scope_id)}</b> ${esc(r.scope_name||'')}</td><td>${esc(r.area||'')}</td><td>${esc(r.ahu_id||'')}</td><td>${r.priority_level?'<span class="pill p'+r.priority_level+'">P'+r.priority_level+'</span>':'—'}</td><td>${fmtPct(r.compliance_pct)} ${spark([r.compliance_pct])}</td><td>${delta}</td><td>${Number(r.critical_hours||0)}/${Number(r.warning_hours||0)}h</td><td><span class="sev ${assessClass}">${esc(r.trend_assessment_vi||'')}</span></td><td>${esc(r.action_hint_vi||'')}</td></tr>`;
+    return `<tr><td>${esc(r.scope_type)}</td><td><b>${esc(r.scope_id)}</b> ${esc(r.scope_name&&r.scope_name!==r.scope_id?r.scope_name:'')}</td><td>${esc([r.area,r.ahu_id].filter(Boolean).join(' / '))}</td><td>${fmtPct(r.compliance_pct)}</td><td>${delta}</td><td><span class="sev ${assessClass}">${esc(r.trend_assessment_vi||'')}</span></td><td>${esc(r.action_hint_vi||'')}</td></tr>`;
+  }
+  function fillRows(id, rows, cols, emptyCols) {
+    const tb = document.getElementById(id); if (!tb) return;
+    if (!rows.length) { tb.innerHTML = `<tr><td colspan="${emptyCols}" style="text-align:center;color:var(--muted)">Chưa có dữ liệu</td></tr>`; return; }
+    tb.innerHTML = rows.map(r => trendRowHtml(r, cols)).join('');
+  }
+  function latestAll(scope, sensor='ALL') {
+    const key = scope + '|' + sensor;
+    state._trendLatestCache = state._trendLatestCache || {};
+    if (state._trendLatestCache[key]) return state._trendLatestCache[key];
+    const fromSeries = latestOf(trendRowsByScope(scope).filter(r => (r.sensor_type||'ALL')===sensor));
+    const fromRisk = (state.trendRisk||[]).filter(r => r.scope_type===scope && (sensor==='ALL' || !r.sensor_type || r.sensor_type===sensor));
+    const byId = new Map();
+    fromRisk.forEach(r => byId.set(r.scope_id, {...r, sensor_type:r.sensor_type||'ALL'}));
+    fromSeries.forEach(r => byId.set(r.scope_id, r));
+    state._trendLatestCache[key] = [...byId.values()];
+    return state._trendLatestCache[key];
+  }
+  function renderTrendTables() {
+    const sensor = activeSensor();
+    const allRowsForSensor = [...latestAll('ROOM', sensor), ...latestAll('AHU', sensor), ...latestAll('AREA', sensor), ...latestAll('TOTAL', sensor)];
+    const riskSource = (state.trendRisk && state.trendRisk.length ? state.trendRisk.filter(r => (r.sensor_type||sensor) === sensor) : allRowsForSensor);
+    const risk = riskSource.sort((a,b)=>(b.risk_score||0)-(a.risk_score||0)).slice(0,15);
+    fillRows('tbody-trend-risk', risk, 'risk', 7);
+    fillRows('tbody-trend-area', latestAll('AREA', sensor).sort((a,b)=>(b.risk_score||0)-(a.risk_score||0)).slice(0,10), 'area', 6);
+    fillRows('tbody-trend-ahu', latestAll('AHU', sensor).sort((a,b)=>(b.risk_score||0)-(a.risk_score||0)).slice(0,12), 'ahu', 6);
+    fillRows('tbody-trend-room', latestAll('ROOM', sensor).sort((a,b)=>(b.risk_score||0)-(a.risk_score||0)).slice(0,20), 'room', 9);
+  }
+  function renderTrendSummary(scope) {
+    const box = document.getElementById('trend-summary-box'); if (!box) return;
+    const sensor = activeSensor();
+    const rows = latestAll(scope, sensor);
+    const bad = rows.filter(r => ['Cần điều tra ưu tiên','Kém','Thiếu dữ liệu'].includes(r.trend_assessment_vi)).length;
+    const avg = rows.length ? rows.reduce((a,r)=>a+(Number(r.compliance_pct)||0),0)/rows.length : null;
+    const worst = [...rows].sort((a,b)=>(b.risk_score||0)-(a.risk_score||0))[0];
+    box.innerHTML = `<div class="line"><span>Cấp đang xem</span><b>${scopeLabel(scope)}</b></div>
+      <div class="line"><span>Số đối tượng có dữ liệu</span><b>${rows.length}</b></div>
+      <div class="line"><span>Tỉ lệ đạt trung bình</span><b>${fmtPct(avg)}</b></div>
+      <div class="line"><span>Đối tượng cần chú ý</span><b>${bad}</b></div>
+      <div class="line"><span>Rủi ro cao nhất</span><b>${worst?esc(worst.scope_id):'—'}</b></div>
+      <div class="line"><span>Sensor đang xem</span><b>${sensorLabel(sensor)}</b></div>
+      <div style="margin-top:10px;color:var(--muted)">${worst?esc(worst.action_hint_vi||''):''}</div>`;
+  }
+
+  function populateTrendSelect() {
+    const sel = document.getElementById('trend-scope-select'); if (!sel) return;
+    const scope = activeScope();
+    const sensor = activeSensor();
+    const optionSource = (state.trendScopeOptions||[]).filter(r => r.scope_type === scope && ((r.sensor_type||sensor) === sensor));
+    const fallbackOptions = (state.trendScopeOptions||[]).filter(r => r.scope_type === scope && ((r.sensor_type||'ALL') === 'ALL'));
+    const rows = (optionSource.length ? optionSource : (latestAll(scope, sensor).length ? latestAll(scope, sensor) : fallbackOptions)).sort((a,b)=>(b.risk_score||b.latest_risk_score||0)-(a.risk_score||a.latest_risk_score||0));
+    const current = state.trendSelectedId || sel.value || '';
+    const opts = [`<option value="">Tự chọn ${scopeLabel(scope).toLowerCase()} rủi ro cao nhất</option>`].concat(rows.map(r => `<option value="${esc(r.scope_id)}">${esc(r.scope_id)} — ${esc(r.scope_name||'')} · ${fmtPct(r.compliance_pct||r.latest_compliance_pct)} · risk ${Number(r.risk_score||r.latest_risk_score||0).toFixed(0)}</option>`));
+    sel.innerHTML = opts.join('');
+    if (current && rows.some(r=>r.scope_id===current)) sel.value = current;
+    else { sel.value = ''; state.trendSelectedId = ''; }
+    sel.disabled = scope === 'TOTAL';
+  }
+
+  function bindTrendRange() {
+    const rangeChips = document.querySelectorAll('#trendRangeFilters .chip:not([data-scope])');
+    rangeChips.forEach(chip => chip.addEventListener('click', function() {
+      rangeChips.forEach(c => c.classList.remove('active')); this.classList.add('active');
+      const m = (this.textContent.match(/\d+/)||[30])[0]; TREND_DAYS = parseInt(m,10); loadTrendData(true);
+    }));
+    const scopeChips = document.querySelectorAll('#trendRangeFilters .chip[data-scope]');
+    scopeChips.forEach(chip => chip.addEventListener('click', function() {
+      scopeChips.forEach(c => c.classList.remove('active')); this.classList.add('active');
+      state.trendScope = this.dataset.scope || 'TOTAL'; state.trendSelectedId = ''; loadTrendData(true);
+    }));
+    const sensor = document.getElementById('trend-sensor-select');
+    if (sensor) sensor.addEventListener('change', function(){ state.trendSensor = this.value || 'ALL'; state.trendSelectedId=''; loadTrendData(true); });
+    const scopeSelect = document.getElementById('trend-scope-select');
+    if (scopeSelect) scopeSelect.addEventListener('change', function(){ state.trendSelectedId = this.value || ''; loadTrendData(true); });
+  }
+
+
+  // Bảng ánh xạ trạng thái → (class màu, nhãn tiếng Việt) — dùng chung
+  // Khớp state machine V2 (xem SO_DO_WORKFLOW_v2.html)
+  const ST_MAP = {
+    NEW:['open','Mới phát sinh'], ACTION_REQUIRED:['open','Cần hành động'],
+    OPEN:['open','Chưa xử lý'], IPC_PENDING:['invest','IPC chờ xử lý'],
+    ACKNOWLEDGED:['ack','IPC đã nhận'], INVESTIGATING:['invest','Đang kiểm tra'],
+    IPC_CHECKED_NORMAL:['ack','Kiểm tra: bình thường'],
+    IPC_CHECKED_ABNORMAL:['eng','Kiểm tra: bất thường'],
+    SENSOR_FAULT:['eng','Nghi lỗi sensor'],
+    MEP_NOTIFIED:['eng','Đã báo cơ điện'], MEP_PENDING:['eng','Cơ điện chờ xử lý'],
+    MEP_IN_PROGRESS:['eng','Cơ điện đang xử lý'],
+    MEP_COMPLETED:['qa','Cơ điện xong — chờ kiểm lại'],
+    MEP_UNABLE:['eng','CĐ không xử lý được'], MEP_UNABLE_TO_PROCESS:['eng','CĐ không xử lý được'],
+    IPC_RECHECK:['invest','IPC đang kiểm lại'], REOPENED:['open','Đã mở lại'],
+    RESOLVED:['closed','Đã khắc phục'], AUTO_CLOSED_RECOVERED:['closed','Tự đóng (ổn định lại)'],
+    CLOSED:['closed','Đã đóng']
+  };
+  function sevInfo(s){ return s==='CRITICAL'?['critical','NGHIÊM TRỌNG']: s==='WARNING'?['warning','CẢNH BÁO']:['nodata','KHÔNG ĐỦ DỮ LIỆU']; }
+
+  function renderEvents(rows) {
+    const tb = document.getElementById('tbody-events'); if (!tb) return;
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--muted)">Không có sự cố khớp bộ lọc 🎉</td></tr>'; return; }
+    tb.innerHTML = rows.map(e => {
+      const [scls,stxt] = sevInfo(e.severity_current);
+      const pcls = e.priority_level===1?'p1':e.priority_level===2?'p2':'p3';
+      const st = ST_MAP[e.current_status]||['open',e.current_status];
+      const dur = e.gio_keo_dai!=null ? e.gio_keo_dai+'h' : '—';
+      return `<tr onclick="openEvent('${esc(e.event_id)}')"><td>${esc((e.event_id||'').slice(0,8))}</td><td><b>${esc(e.room_id)}</b></td><td><span class="pill ${pcls}">P${e.priority_level||3}</span></td><td>${esc(e.sensor_type)}</td><td><span class="sev ${scls}">${stxt}</span></td><td>${fmtHM(e.first_seen_at)}</td><td>${dur}</td><td><span class="st ${st[0]}">${st[1]}</span></td><td>—</td><td>${actionButtons(e)}</td></tr>`;
+    }).join('');
+  }
+
+  /* ===== PHẦN 6 · BỘ LỌC SỰ CỐ (hoạt động thật) ============== */
+  function applyEventFilters() {
+    const f = state.filters;
+    const sensorOf = e => (e.sensor_type==='DATA'||e.severity_current==='NODATA') ? 'DATA' : e.sensor_type;
+    const rows = state.events.filter(e =>
+      (f.status==='ALL' || e.current_status===f.status) &&
+      (f.sensor==='ALL' || sensorOf(e)===f.sensor) &&
+      (f.sev==='ALL'    || e.severity_current===f.sev)
+    );
+    renderEvents(rows);
+  }
+  // gắn sự kiện cho chip lọc sự cố
+  document.querySelectorAll('.filters[data-filter-row="events"] .chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      const g = this.dataset.group;
+      document.querySelectorAll(`.chip[data-group="${g}"]`).forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+      state.filters[g] = this.dataset.val;
+      applyEventFilters();
+    });
+  });
+  // các chip trang khác (Phòng/Báo cáo) — chỉ tô active (chưa nối lọc, giữ như cũ)
+  document.querySelectorAll('.filters:not([data-filter-row]) .chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      let p=this.previousElementSibling, n=this.nextElementSibling;
+      this.classList.add('active');
+      while (p && p.classList.contains('chip')) { p.classList.remove('active'); p=p.previousElementSibling; }
+      while (n && n.classList.contains('chip')) { n.classList.remove('active'); n=n.nextElementSibling; }
+    });
+  });
+
+  /* ===== PHẦN 7 · ĐĂNG NHẬP (chọn người dùng + vai trò) ====== */
+  let CURRENT_USER = null;
+  try { CURRENT_USER = JSON.parse(BMS_STORAGE.getItem('bms_user') || 'null'); } catch(e) {}
+  const ROLE_VI = { IPC:'IPC Hiện trường', MEP:'Cơ điện', LOT:'Trực hồ sơ lô', QA:'QA Kiểm soát', ADMIN:'Quản trị' };
+
+  async function loadUsers() {
+    if (!CONNECTED) return [];   // demo: không có danh sách user thật
+    try { return await sb('bms_users','is_active=eq.true&select=email,full_name,role&order=role'); }
+    catch (e) { console.error('Không tải được người dùng:', e); return []; }
+  }
+  async function showLogin() {
+    const users = await loadUsers();
+    let body;
+    if (!users.length) {
+      body = `<p style="color:var(--muted)">Chưa lấy được danh sách người dùng.${CONNECTED?' Kiểm tra bảng <code>bms_users</code> đã chạy G1 và cấp quyền cho <code>anon</code> chưa.':' (Đang ở chế độ xem trước — hãy điền Supabase để đăng nhập thật.)'}</p>`;
+    } else {
+      const opts = users.map(u => `<option value="${esc(u.email)}">${esc(u.full_name)} — ${ROLE_VI[u.role]||u.role}</option>`).join('');
+      body = `<select id="loginSelect" style="width:100%;padding:10px;border-radius:8px;margin:12px 0;background:var(--panel-2);color:var(--text);border:1px solid var(--line)">${opts}</select>
+              <button class="btn primary" style="width:100%" onclick="doLogin()">Đăng nhập</button>`;
+    }
+    document.getElementById('modalContent').innerHTML =
+      `<span class="close-x" onclick="closeModal()">&times;</span>
+       <h2 style="margin-top:0">Đăng nhập hệ thống BMS</h2>
+       <p style="color:var(--muted)">Chọn người dùng để ghi nhận danh tính khi thao tác (truy vết GMP/ALCOA+).</p>${body}`;
+    document.getElementById('modalBg').classList.add('show');
+  }
+  async function doLogin() {
+    const email = document.getElementById('loginSelect').value;
+    const users = await loadUsers();
+    CURRENT_USER = users.find(u => u.email === email) || null;
+    try { BMS_STORAGE.setItem('bms_user', JSON.stringify(CURRENT_USER)); } catch(e) {}
+    updateUserBadge(); closeModal(); applyEventFilters();   // vẽ lại để hiện nút theo vai trò
+  }
+  function logout() {
+    CURRENT_USER = null;
+    try { BMS_STORAGE.removeItem('bms_user'); } catch(e) {}
+    updateUserBadge(); applyEventFilters();
+  }
+  function updateUserBadge() {
+    const badge = document.getElementById('userBadge'); if (!badge) return;
+    badge.textContent = CURRENT_USER ? `${CURRENT_USER.full_name} (${CURRENT_USER.role})` : 'Chưa đăng nhập';
+  }
+
+  /* ===== PHẦN 8 · THAO TÁC SỰ CỐ (RPC bms_event_action) ====== */
+  async function callEventAction(eventId, action, reason = null) {
+    if (!CURRENT_USER) { showLogin(); return null; }
+    if (!CONNECTED || String(eventId).startsWith('demo-')) {
+      toast('Đây là dữ liệu MẪU. Hãy điền Supabase ở trang Cài đặt để thao tác thật.', 'warning');
+      return null;
+    }
+    try {
+      const authToken = BMS_STORAGE.getItem('bms_supabase_access_token') || SUPABASE_ANON;
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/bms_event_action`, {
+        method:'POST',
+        headers:{ apikey:SUPABASE_ANON, Authorization:'Bearer '+authToken, 'Content-Type':'application/json' },
+        body: JSON.stringify({
+          p_event_id:eventId,
+          p_action:action,
+          p_actor:CURRENT_USER.email,
+          p_reason:reason,
+          p_payload:{ source:'web', ui_user:CURRENT_USER.email, ui_role:CURRENT_USER.role, ui_ts:new Date().toISOString() }
+        })
+      });
+      const r = await res.json();
+      if (r && r.ok) {
+        toast('Đã ghi nhận thao tác thành công', 'success', 3000);
+        await loadAll();
+        return r;
+      }
+      toast('Không ghi nhận được: ' + (r?.error || 'Lỗi không xác định'), 'error', 6000);
+      return null;
+    } catch (e) {
+      toast('Lỗi kết nối Supabase: ' + (e.message || 'Không rõ nguyên nhân'), 'error', 6000);
+      return null;
+    }
+  }
+  // Nút thao tác theo vai trò — khớp state machine V2/G2.
+  // Lưu ý: UI chỉ giúp thao tác thuận tiện; server-side bms_event_action vẫn kiểm tra lại role + trạng thái.
+  // QUY TẮC CHỐT: chỉ IPC / Cơ điện (MEP) / Trực HSL (LOT) có nút bấm.
+  //   QA chỉ GIÁM SÁT — không có nút thao tác trên dòng sự cố.
+  //   ADMIN thấy mọi nút để hỗ trợ vận hành.
+  function actionButtons(e) {
+    if (!CURRENT_USER) return '<button class="btn" onclick="event.stopPropagation();showLogin()">Đăng nhập để thao tác</button>';
+    const role = CURRENT_USER.role, id = e.event_id, st = e.current_status;
+    const B = (act,txt,cls='btn') => `<button class="${cls}" onclick="event.stopPropagation();callEventAction('${esc(id)}','${act}')">${txt}</button>`;
+    const isAdmin = role==='ADMIN';
+    let b = [];
+
+    // ---- IPC (hiện trường) ----
+    if (role==='IPC' || isAdmin) {
+      // Bước kiểm tra ban đầu
+      if (['OPEN','ACTION_REQUIRED','NEW','IPC_PENDING','ACKNOWLEDGED','INVESTIGATING'].includes(st)) {
+        b.push(B('ipc_normal','Bình thường','btn primary'));
+        b.push(B('ipc_abnormal','Bất thường'));
+        b.push(B('ipc_wait','Chờ xử lý'));
+      }
+      // Vòng kiểm lại sau khi cơ điện báo xong
+      if (['MEP_COMPLETED','IPC_RECHECK'].includes(st)) {
+        b.push(B('ipc_resolved','Đã khắc phục','btn primary'));
+        b.push(B('ipc_reopen','Vẫn bất thường'));
+      }
+    }
+    // ---- Cơ điện (MEP) — logic 2 giai đoạn ----
+    if (role==='MEP' || isAdmin) {
+      // Giai đoạn 1: tiếp nhận (nút kết luận bị khoá tới khi đã tiếp nhận)
+      if (['IPC_CHECKED_ABNORMAL','MEP_NOTIFIED','MEP_PENDING','REOPENED'].includes(st)) {
+        b.push(B('mep_accept','Tiếp nhận / Đang xử lý','btn primary'));
+        b.push(B('mep_wait','Chờ xử lý'));
+      }
+      // Giai đoạn 2: kết luận (chỉ khi đang xử lý)
+      if (st==='MEP_IN_PROGRESS') {
+        b.push(B('mep_done','Đã xử lý xong','btn primary'));
+        b.push(B('mep_unable','Không thể xử lý'));
+      }
+    }
+    // ---- Trực HSL (LOT) — điều phối, không đổi trạng thái ----
+    if (role==='LOT' || isAdmin) {
+      // luôn có thể nhắc/điều phối khi sự cố còn mở
+      b.push(B('lot_remind','Đã nhắc / điều phối'));
+      b.push(B('lot_escalate','Nâng mức ưu tiên'));
+      b.push(B('lot_note','Ghi chú'));
+    }
+    // ---- QA: KHÔNG nút (chỉ giám sát) ----
+
+    if (b.length) return `<div class="btn-group">${b.join('')}</div>`;
+    if (role==='QA') return '<span style="color:var(--muted)">Giám sát</span>';
+    return '<span style="color:var(--muted)">—</span>';
+  }
+
+  /* ===== PHẦN 9 · MODAL CHI TIẾT ============================= */
+  function closeModal() { document.getElementById('modalBg').classList.remove('show'); }
+
+  // CHI TIẾT SỰ CỐ — đọc dữ liệu THẬT từ state + timeline thật + nút thao tác thật
+  async function openEvent(id) {
+    const e = state.events.find(x => x.event_id === id);
+    if (!e) { toast('Không tìm thấy sự cố trong danh sách hiện tại.', 'warning'); return; }
+    const [scls,stxt] = sevInfo(e.severity_current);
+    const st = ST_MAP[e.current_status] || ['open', e.current_status];
+    const goiY = e.goi_y_tiep ? `<tr><td style="color:var(--muted)">Gợi ý bước tiếp</td><td>${esc(e.goi_y_tiep)}</td></tr>` : '';
+    document.getElementById('modalContent').innerHTML = `
+      <span class="close-x" onclick="closeModal()">&times;</span>
+      <h2>${esc((e.event_id||'').slice(0,8))} — ${esc(e.room_id)} ${esc(e.room_name||'')}</h2>
+      <div class="modal-sub">${esc(e.sensor_type)} · <span class="sev ${scls}">${stxt}</span> · Bắt đầu ${fmtHM(e.first_seen_at)} · Kéo dài ${e.gio_keo_dai!=null?e.gio_keo_dai+'h':'—'}</div>
+      <div class="card" style="margin:0 0 16px"><h2>📌 Thông tin</h2>
+        <table>
+          <tr><td style="color:var(--muted);width:160px">Phòng</td><td><b>${esc(e.room_id)}</b> ${esc(e.room_name||'')} ${e.area?'· Khu '+esc(e.area):''}</td></tr>
+          <tr><td style="color:var(--muted)">AHU</td><td>${esc(e.ahu_id||'—')}</td></tr>
+          <tr><td style="color:var(--muted)">Chỉ tiêu vi phạm</td><td>${esc(e.sensor_type)}</td></tr>
+          <tr><td style="color:var(--muted)">Ưu tiên</td><td>P${e.priority_level||3}</td></tr>
+          <tr><td style="color:var(--muted)">Trạng thái</td><td><span class="st ${st[0]}">${st[1]}</span></td></tr>
+          ${goiY}
+        </table>
+      </div>
+      <div class="card" style="margin:0 0 16px"><h2>⚡ Thao tác (theo vai trò của bạn)</h2>
+        <input id="actReason" placeholder="Ghi chú (tuỳ chọn) — lưu vào audit trail" style="width:100%;padding:9px;border-radius:8px;margin-bottom:10px;background:var(--panel-2);color:var(--text);border:1px solid var(--line)">
+        <div id="modalActions">${modalActionButtons(e)}</div>
+      </div>
+      <div class="card" style="margin:0"><h2>🕐 Timeline xử lý (audit trail · ALCOA+)</h2>
+        <div id="modalTimeline"><p style="color:var(--muted)">Đang tải lịch sử…</p></div>
+      </div>`;
+    document.getElementById('modalBg').classList.add('show');
+    // nạp timeline thật
+    document.getElementById('modalTimeline').innerHTML = await renderTimeline(id);
+  }
+  // Nút thao tác trong modal — dùng lại logic vai trò, nhưng gửi kèm Ghi chú
+  function modalActionButtons(e) {
+    if (!CURRENT_USER) return '<button class="btn" onclick="showLogin()">Đăng nhập để thao tác</button>';
+    const tmp = actionButtons(e);                 // tái dùng quy tắc vai trò
+    // chuyển callEventAction(...) → kèm reason từ ô #actReason
+    return tmp.replace(/callEventAction\('([^']+)','([^']+)'\)/g,
+      "callEventActionWithReason('$1','$2')");
+  }
+  async function callEventActionWithReason(id, action) {
+    const reason = (document.getElementById('actReason')?.value || '').trim() || null;
+    const r = await callEventAction(id, action, reason);
+    if (r) closeModal();
+  }
+  // Render timeline thật từ view v_dash_event_timeline
+  async function renderTimeline(eventId) {
+    if (!CONNECTED || String(eventId).startsWith('demo-'))
+      return '<p style="color:var(--muted)">Chế độ xem trước — timeline thật sẽ hiện khi đã nối Supabase và có thao tác.</p>';
+    try {
+      const tl = await sb('v_dash_event_timeline', `event_id=eq.${eventId}&order=thoi_diem.desc`);
+      if (!tl.length) return '<p style="color:var(--muted)">Chưa có thao tác nào. Hãy là người đầu tiên xử lý.</p>';
+      return '<div class="timeline">' + tl.map(t => `
+        <div class="tl-item">
+          <div class="tl-time">${new Date(t.thoi_diem).toLocaleString('vi-VN')}</div>
+          <div class="tl-text">${esc(t.mo_ta)}</div>
+          <div class="tl-actor">${esc(t.ten_nguoi)} (${esc(t.vai_tro)})</div>
+          ${t.reason ? `<div style="font-size:12px;color:var(--muted);margin-top:2px">Ghi chú: ${esc(t.reason)}</div>` : ''}
+        </div>`).join('') + '</div>';
+    } catch (e) { return '<p style="color:var(--red)">Lỗi tải lịch sử: ' + esc(e.message) + '</p>'; }
+  }
+
+  // CHI TIẾT PHÒNG — đọc từ danh sách worst đang có (số liệu thật nếu đã nối)
+  function openRoom(roomId) {
+    const r = state.worst.find(x => x.room_id === roomId) || { room_id:roomId };
+    const pct = r.ti_le_dat_pct;
+    const evs = state.events.filter(e => e.room_id === roomId);
+    const evRows = evs.length ? evs.map(e => {
+      const [,stxt] = sevInfo(e.severity_current); const st = ST_MAP[e.current_status]||['open',e.current_status];
+      return `<tr onclick="closeModal();openEvent('${esc(e.event_id)}')"><td>${esc((e.event_id||'').slice(0,8))}</td><td>${esc(e.sensor_type)}</td><td>${fmtHM(e.first_seen_at)}</td><td><span class="st ${st[0]}">${st[1]}</span></td></tr>`;
+    }).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--muted)">Không có sự cố đang mở</td></tr>';
+    document.getElementById('modalContent').innerHTML = `
+      <span class="close-x" onclick="closeModal()">&times;</span>
+      <h2>${esc(r.room_id)} — Chi tiết phòng</h2>
+      <div class="modal-sub">${r.area?'Khu '+esc(r.area)+' · ':''}${esc(r.room_name||'')}${r.priority_level?' · Ưu tiên P'+r.priority_level:''}</div>
+      <div class="mini-metrics">
+        <div class="mini-metric"><div class="mm-label">Tỉ lệ đạt (3 ngày)</div><div class="mm-val" style="color:${pct==null?'var(--gray)':pct<70?'var(--red)':pct<90?'var(--amber)':'var(--green)'}">${pct==null?'—':pct+'%'}</div><div class="mm-range">${pct==null?'không đủ dữ liệu':'compliance'}</div></div>
+        <div class="mini-metric"><div class="mm-label">Giờ nghiêm trọng tích luỹ</div><div class="mm-val">${r.tong_gio_critical!=null?r.tong_gio_critical+'h':'—'}</div><div class="mm-range">3 ngày gần nhất</div></div>
+        <div class="mini-metric"><div class="mm-label">Sự cố đang mở</div><div class="mm-val">${evs.length}</div><div class="mm-range">tại phòng này</div></div>
+      </div>
+      <div class="card" style="margin:0"><h2>📜 Sự cố đang mở của phòng</h2>
+        <table><thead><tr><th>Mã sự cố</th><th>Chỉ tiêu</th><th>Bắt đầu</th><th>Trạng thái</th></tr></thead><tbody>${evRows}</tbody></table>
+      </div>`;
+    document.getElementById('modalBg').classList.add('show');
+  }
+
+
+  async function runSystemCheck() {
+    const el = document.getElementById('system-check-result');
+    if (!el) return;
+    if (!CONNECTED) {
+      el.innerHTML = '<div class="line"><span>Supabase URL/key</span><b style="color:var(--amber)">Chưa điền — web đang demo mode</b></div><div style="margin-top:8px;color:var(--muted)">Hãy thay SUPABASE_URL và SUPABASE_ANON trong index.html rồi upload lại GitHub Pages.</div>';
+      return;
+    }
+    el.innerHTML = 'Đang kiểm tra Supabase, SQL 23 và các API xu hướng/hourly guard…';
+    const checks = [];
+    async function check(name, fn, fix) {
+      try { const r = await fn(); checks.push({name, ok:true, detail:Array.isArray(r)?`${r.length} dòng trả về`:'OK', fix}); }
+      catch(e) { checks.push({name, ok:false, detail:e.message, fix}); }
+    }
+    await check('Kết nối dashboard summary', () => sb('v_dash_summary','limit=1'), 'Chạy SQL 07→10 và kiểm tra GRANT SELECT TO anon.');
+    await check('View trend latest', () => sb('v_dash_trend_scope_latest','limit=1'), 'Chạy SQL 17→19 và GRANT SELECT TO anon.');
+    await check('View trend sensor daily', () => sb('v_dash_trend_sensor_daily','limit=1'), 'Chạy SQL 18 và kiểm tra dữ liệu rollup ngày.');
+    await check('RPC v9.9.1 trend latest', () => rpc('bms_api_trend_scope_latest',{p_scope_type:null,p_sensor_type:'ALL',p_limit:1}), 'Chạy SQL 20→23; nếu 404 là thiếu function, nếu 403 là thiếu GRANT EXECUTE.');
+    await check('RPC v9.9.1 deploy check', () => rpc('bms_api_web_deploy_check',{}), 'Chạy SQL 20→22; nếu 404 là chưa có function, nếu 403 là thiếu GRANT EXECUTE.');
+    await check('Smoke test SQL 23', () => rpc('bms_api_installation_smoke_test',{}), 'Chạy SQL 01→23, đặc biệt file 23_H9_FINAL_hourly_write_guard_v9_9_1.sql.');
+    await check('Hourly write guard', () => rpc('bms_api_hourly_write_guard_check',{}), 'Chạy SQL 23_H9_FINAL_hourly_write_guard_v9_9_1.sql; nếu 404 là thiếu function, nếu 403 là thiếu GRANT EXECUTE.');
+    el.innerHTML = checks.map(c => `<div class="line"><span>${esc(c.name)}</span><b style="color:${c.ok?'var(--green)':'var(--red)'}">${c.ok?'PASS':'FAIL'}</b></div><div style="font-size:12px;color:var(--muted);margin-bottom:8px">${esc(c.detail)}${c.ok?'':' · Cách xử lý: '+esc(c.fix)}</div>`).join('');
+  }
+
+  /* ===== PHẦN 10 · ĐIỀU HƯỚNG / THEME / TỰ LÀM MỚI / KHỞI ĐỘNG */
+  function goPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('active', b.dataset.page === id));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (id === 'trend') loadTrendData(false);
+  }
+  document.querySelectorAll('#nav button').forEach(btn => btn.addEventListener('click', () => goPage(btn.dataset.page)));
+
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    document.getElementById('themeBtn').textContent = next === 'dark' ? '🌙 Tối' : '☀️ Sáng';
+  }
+
+  // Cập nhật trang Cài đặt + footer cho khớp trạng thái thật
+  function syncSettings() {
+    const mask = SUPABASE_URL.includes('XXXXX') ? '(chưa điền)' : SUPABASE_URL;
+    const tag = CONNECTED ? '<span class="st qa">đã nối</span>' : '<span class="st open">chưa nối</span>';
+    const setHTML = (sel, html) => { const el = document.querySelector(sel); if (el) el.innerHTML = html; };
+    const rows = document.querySelectorAll('#page-settings table tr');
+    if (rows[0]) rows[0].children[1].innerHTML = `<code>${esc(mask)}</code> ${tag}`;
+    if (rows[1]) rows[1].children[1].innerHTML = `<code>eyJ…</code> ${tag}`;
+    const ft = document.querySelector('footer');
+    if (ft) ft.innerHTML = `<b>Hệ Thống BMS</b> · CPC1 Hà Nội · Phiên bản v9.9.4 HARDENED<br>Nguồn dữ liệu: Supabase (${CONNECTED?'đã kết nối':'chưa kết nối'}) · Giám sát chuẩn GMP / PIC-S Annex 1`;
+  }
+
+  async function manualRefresh() {
+    await loadRealtime();
+    if (isTrendPageActive()) await loadTrendData(true);
+  }
+  function startAutoRefresh() {
+    if (!CONNECTED || !REFRESH_MS) return;
+    setInterval(async () => {
+      if (document.getElementById('modalBg').classList.contains('show')) return;
+      await loadRealtime();
+      if (isTrendPageActive() && Date.now() - state.trendLastLoadedAt >= TREND_REFRESH_MS) await loadTrendData(true);
+    }, REFRESH_MS);
+  }
+
+  // ===== KHỞI ĐỘNG =====
+  updateUserBadge();
+  bindTrendRange();
+  loadAll();
+  startAutoRefresh();
+  </script>
+</body>
+</html>
