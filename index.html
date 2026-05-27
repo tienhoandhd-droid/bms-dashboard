@@ -676,8 +676,40 @@
 
   /* ===== PHẦN 1 · CẤU HÌNH (CHỈ SỬA Ở ĐÂY) ===================== */
   // Lấy 2 giá trị tại: Supabase → Project Settings → API
-  const SUPABASE_URL  = 'https://bligxhjontmpbiqhxbxf.supabase.co';   // ← THAY: Project URL
-  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsaWd4aGpvbnRtcGJpcWh4YnhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MjQxMjMsImV4cCI6MjA5NDEwMDEyM30.7qddGQnwr4oaY8W5-3myARHEMmXrJam4WL9ngZxJz34';                  // ← THAY: anon public key
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+<script>
+  const SUPABASE_URL  = 'https://bligxhjontmpbiqhxbxf.supabase.co'; // Giữ nguyên URL thật của bạn
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsaWd4aGpvbnRtcGJpcWh4YnhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MjQxMjMsImV4cCI6MjA5NDEwMDEyM30.7qddGQnwr4oaY8W5-3myARHEMmXrJam4WL9ngZxJz34';                 // Giữ nguyên Anon Key thật của bạn
+
+  // === ĐOẠN CODE BẢO MẬT BỔ SUNG KHỞI TẠO AUTH ===
+  const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  sbClient.auth.onAuthStateChange((event, session) => {
+    if (session) {
+      BMS_STORAGE.setItem('bms_supabase_access_token', session.access_token);
+      BMS_STORAGE.setItem('bms_user', JSON.stringify({ email: session.user.email }));
+      
+      // Kiểm tra cờ để tránh việc trang web bị tải lại (reload) liên tục vô hạn
+      if (!localStorage.getItem('logged_in_flag')) {
+         localStorage.setItem('logged_in_flag', 'true');
+         location.reload();
+      }
+    } else {
+      BMS_STORAGE.removeItem('bms_supabase_access_token');
+      localStorage.removeItem('logged_in_flag');
+    }
+  });
+
+  // Thay thế hàm hiển thị đăng nhập cũ bằng hình thức gửi OTP/Magic Link qua Email công ty
+  async function showLogin() {
+    const email = prompt('Nhập email nhân viên để nhận mã xác thực đăng nhập:');
+    if (!email) return;
+    const { error } = await sbClient.auth.signInWithOtp({ email });
+    if (error) alert('Lỗi gửi link: ' + error.message);
+    else alert('Đã gửi liên kết đăng nhập vào Email của bạn. Hãy kiểm tra hòm thư!');
+  }
+  // ===============================================                  // ← THAY: anon public key
   const REFRESH_MS    = 60000;                          // tự làm mới dữ liệu realtime mỗi 60 giây (0 = tắt)
   const TREND_REFRESH_MS = 30 * 60 * 1000;               // dữ liệu lịch sử/xu hướng chỉ làm mới 30 phút/lần
   const TREND_MAX_SVG_WIDTH = 1400;                      // giới hạn DOM SVG, tránh chart 90/180 ngày tràn ngang
