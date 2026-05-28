@@ -362,7 +362,7 @@
 
     <div class="section-title">⚡ Truy cập nhanh</div>
     <div class="quick-grid">
-      <div class="quick-card" onclick="goPage('events')"><div class="ic">🔔</div><div class="t">Sự cố đang xử lý</div><div class="d">Cảnh báo &amp; ACK</div></div>
+      <div class="quick-card" onclick="goPage('events')"><div class="ic">🔔</div><div class="t">Sự cố đang xử lý</div><div class="d">Cảnh báo &amp; xác nhận</div></div>
       <div class="quick-card" onclick="goPage('rooms')"><div class="ic">🏢</div><div class="t">Phòng &amp; AHU</div><div class="d">57 phòng giám sát</div></div>
       <div class="quick-card" onclick="goPage('trend')"><div class="ic">📈</div><div class="t">Xu hướng GMP</div><div class="d">7/30 ngày</div></div>
       <div class="quick-card" onclick="goPage('reports')"><div class="ic">📋</div><div class="t">Báo cáo</div><div class="d">Ngày/tuần/tháng + AI</div></div>
@@ -382,7 +382,7 @@
         <div class="di-item"><div class="di-top"><span class="di-label">Phòng đủ dữ liệu</span><span class="di-stat di-ok">96%</span></div><div class="di-val">55<small style="font-size:13px;color:var(--muted)">/57</small></div></div>
         <div class="di-item"><div class="di-top"><span class="di-label">Phòng thiếu dữ liệu</span><span class="di-stat di-warn">⚫ chú ý</span></div><div class="di-val">2</div></div>
         <div class="di-item"><div class="di-top"><span class="di-label">Sensor mất tín hiệu</span><span class="di-stat di-bad">cần kiểm tra</span></div><div class="di-val">3</div></div>
-        <div class="di-item"><div class="di-top"><span class="di-label">Workflow chạy gần nhất</span><span class="di-stat di-ok">✓ thành công</span></div><div class="di-val" style="font-size:15px">13:05 hôm nay</div></div>
+        <div class="di-item"><div class="di-top"><span class="di-label">Luồng tự động chạy gần nhất</span><span class="di-stat di-ok">✓ thành công</span></div><div class="di-val" style="font-size:15px">13:05 hôm nay</div></div>
         <div class="di-item"><div class="di-top"><span class="di-label">Email cảnh báo gửi</span><span class="di-stat di-ok">✓ OK</span></div><div class="di-val" style="font-size:15px">12 gửi / 0 lỗi</div></div>
         <div class="di-item"><div class="di-top"><span class="di-label">Sự cố chưa tiếp nhận</span><span class="di-stat di-bad">cần xử lý</span></div><div class="di-val">5</div></div>
       </div>
@@ -487,7 +487,7 @@
     </div>
 
     <div class="card">
-      <h2 id="trend-main-title">Individual chart — xu hướng giờ cảnh báo theo thời gian <span class="hint">— 30 ngày gần nhất</span></h2>
+      <h2 id="trend-main-title">Biểu đồ riêng — xu hướng giờ cảnh báo theo thời gian <span class="hint">— 30 ngày gần nhất</span></h2>
       <div class="trend-svg-wrap" id="trend-main-chart"></div>
       <div id="trend-point-detail" class="trend-detail-panel">Bấm vào một điểm/cột trên biểu đồ để xem chi tiết dữ liệu tương ứng.</div>
       <div class="legend">
@@ -641,10 +641,16 @@
       </table>
     </div>
     <div class="card">
-      <h2>🧪 Kiểm tra hệ thống sau deploy <span class="hint">— Supabase / SQL 20 / Trend API</span></h2>
+      <h2>🧪 Kiểm tra hệ thống sau deploy <span class="hint">— Supabase / SQL v10.0.10 / API xu hướng</span></h2>
       <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Dùng nút này sau khi upload GitHub Pages để kiểm tra nhanh các view/RPC phục vụ tab Xu hướng GMP.</p>
       <div class="btn-group" style="margin-bottom:12px"><button class="btn primary" onclick="runSystemCheck()">🔍 Kiểm tra kết nối</button></div>
       <div id="system-check-result" class="trend-summary-box">Chưa chạy kiểm tra.</div>
+    </div>
+    <div class="card">
+      <h2>🛠️ Nút tìm lỗi <span class="hint">— phân tích nguyên nhân & hướng dẫn xử lý</span></h2>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Công cụ này kiểm tra cấu hình web, Supabase, quyền RLS/GRANT, RPC module và nếu đã cấu hình WF05 thì kiểm tra thêm n8n/OpenAI qua webhook chẩn đoán. Web không lưu OpenAI key.</p>
+      <div class="btn-group" style="margin-bottom:12px"><button class="btn primary" onclick="runTroubleshooter()">🧭 Tìm lỗi và hướng dẫn khắc phục</button><button class="btn ghost" onclick="runTroubleshooter()">🔁 Thử lại</button><button class="btn ghost" onclick="document.getElementById('page-settings').scrollIntoView({behavior:'smooth'})">⚙️ Đi đến Cài đặt</button></div>
+      <div id="troubleshooter-result" class="trend-summary-box">Chưa chạy tìm lỗi.</div>
     </div>
   </div>
 
@@ -654,8 +660,8 @@
   </div>
 
   <footer>
-    <b>Hệ Thống BMS</b> · CPC1 Hà Nội · Phiên bản v9.9.1.1 FINAL<br>
-    Nguồn dữ liệu: Supabase (chưa kết nối) · Giám sát chuẩn GMP / PIC-S Annex 1
+    <b>Hệ Thống BMS</b> · CPC1 Hà Nội · Phiên bản v10.0.10 FINAL CLEAN INSTALL SAFE CANONICAL AUDITED<br>
+    Nguồn dữ liệu: Supabase (chưa kết nối) · Giám sát chuẩn GMP / PIC/S Annex 1
   </footer>
 
   <script>
@@ -669,7 +675,7 @@
        PHẦN 5  VẼ GIAO DIỆN    — render* đổ dữ liệu ra bảng/biểu đồ
        PHẦN 6  BỘ LỌC          — chip lọc sự cố hoạt động thật
        PHẦN 7  ĐĂNG NHẬP       — chọn người dùng (vai trò GMP)
-       PHẦN 8  THAO TÁC SỰ CỐ  — gọi RPC bms_event_action + nút theo vai trò
+       PHẦN 8  THAO TÁC SỰ CỐ  — gọi RPC module bms_api_event_public + nút theo vai trò
        PHẦN 9  MODAL CHI TIẾT  — sự cố (timeline thật) + phòng
        PHẦN 10 ĐIỀU HƯỚNG/THEME + TỰ LÀM MỚI + KHỞI ĐỘNG
      ============================================================ */
@@ -681,7 +687,12 @@
   const REFRESH_MS    = 60000;                          // tự làm mới dữ liệu realtime mỗi 60 giây (0 = tắt)
   const TREND_REFRESH_MS = 30 * 60 * 1000;               // dữ liệu lịch sử/xu hướng chỉ làm mới 30 phút/lần
   const TREND_MAX_SVG_WIDTH = 1400;                      // giới hạn DOM SVG, tránh chart 90/180 ngày tràn ngang
-  const APP_VERSION = 'v9.9.4 HARDENED';
+  const APP_VERSION = 'v10.0.10 FINAL CLEAN INSTALL SAFE DIAGNOSTIC';
+  // Không đặt service_role hoặc OpenAI API key trong Web tĩnh/GitHub Pages.
+  // OpenAI phải được kiểm tra qua n8n/backend. Nếu cần kiểm tra n8n từ Web,
+  // dùng workflow WF05 bên dưới và chỉ nhập secret khi chấp nhận rủi ro Web tĩnh không giữ được bí mật tuyệt đối.
+  const N8N_DIAGNOSTIC_WEBHOOK_URL = ''; // tuỳ chọn: Production URL của WF05, ví dụ https://n8n.example/webhook/bms-health-diagnostic
+  const N8N_WEBHOOK_SECRET = '';         // tuỳ chọn: header X-Webhook-Secret cho WF05. Vì Web tĩnh có thể bị xem mã nguồn, đây chỉ là lớp chống gọi nhầm/spam nhẹ; không thay thế xác thực backend.
 
   // Tự nhận biết đã điền cấu hình hay chưa
   const CONNECTED = SUPABASE_URL && !SUPABASE_URL.includes('XXXXX') && SUPABASE_ANON && !SUPABASE_ANON.includes('XXXXX');
@@ -759,6 +770,32 @@
     if (!res.ok) throw new Error(httpErrorVN(res.status, fn));
     return res.json();
   }
+  // Gọi RPC module dispatcher v10.0.10 và tự mở gói { ok, data }.
+  async function rpcModule(moduleName, action, payload = {}, opts = {}) {
+    const out = await rpc(moduleName, { p_action: action, p_payload: payload }, opts);
+    if (out && out.ok === false) {
+      throw new Error(out.error || out.hint || `RPC ${moduleName}/${action} trả lỗi`);
+    }
+    return out && Object.prototype.hasOwnProperty.call(out, 'data') ? out.data : out;
+  }
+
+  async function n8nDiagnosticPing(opts = {}) {
+    if (!N8N_DIAGNOSTIC_WEBHOOK_URL) {
+      return { configured:false, ok:false, status:'not_configured', message:'Chưa cấu hình URL webhook chẩn đoán n8n/WF05.' };
+    }
+    const headers = { 'Content-Type':'application/json' };
+    if (N8N_WEBHOOK_SECRET) headers['X-Webhook-Secret'] = N8N_WEBHOOK_SECRET;
+    const res = await fetchWithTimeout(N8N_DIAGNOSTIC_WEBHOOK_URL, {
+      method:'POST', headers,
+      body: JSON.stringify({ source:'web-dashboard', action:'health_check', ts:new Date().toISOString() }),
+      signal: opts.signal
+    }, opts.timeoutMs || 15000);
+    let body = null;
+    try { body = await res.json(); } catch(e) { body = { message: await res.text().catch(()=> '') }; }
+    if (!res.ok) throw new Error(`n8n diagnostic HTTP ${res.status}: ${body?.message || body?.error || 'Không rõ lỗi'}`);
+    return body;
+  }
+
   // Đổi text 1 phần tử mà KHÔNG xoá thẻ con bên trong (vd <small>/57</small>)
   function setText(id, val) {
     const el = document.getElementById(id);
@@ -866,7 +903,7 @@
     setBanner('demo'); syncSettings(); stampUpdated();
   }
 
-  let _realtimeLoading = false;   // v9.9.4: chống gọi loadRealtime trùng lặp
+  let _realtimeLoading = false;   // v10.0.10: chống gọi tải dữ liệu trùng lặp
   async function loadRealtime() {
     if (!CONNECTED) { applyDemoData(); return; }
     if (_realtimeLoading) return;   // đang tải rồi, bỏ qua lần gọi này
@@ -929,8 +966,8 @@
     try {
       // Bước 1: tải “shell” nhẹ: ranking latest + danh sách đối tượng. Không tải toàn bộ 180 ngày.
       const [latestRows, optionRows] = await Promise.all([
-        rpc('bms_api_trend_scope_latest', { p_scope_type: null, p_sensor_type: sensor, p_limit: 160 }, { signal: controller.signal }),
-        rpc('bms_api_trend_scope_options', { p_scope_type: null, p_sensor_type: sensor, p_limit: 800 }, { signal: controller.signal })
+        rpcModule('bms_api_trend', 'get_scope_latest', { scope_type: null, sensor_type: sensor, limit: 160 }, { signal: controller.signal }),
+        rpcModule('bms_api_trend', 'get_scope_options', { scope_type: null, sensor_type: sensor, limit: 800 }, { signal: controller.signal })
       ]);
       if (state._trendLoadSeq !== seq) return;
       state.trendRisk = latestRows || [];
@@ -958,7 +995,7 @@
 
       // Bước 2: tải time-series nhỏ theo đúng đối tượng/chart đang hiển thị.
       const seriesResults = await Promise.allSettled(requests.map(r =>
-        rpc('bms_api_trend_series', { p_scope_type: r.scope, p_scope_id: r.id || 'ALL', p_sensor_type: r.sensor, p_days: TREND_DAYS }, { signal: controller.signal })
+        rpcModule('bms_api_trend', 'get_series', { scope_type: r.scope, scope_id: r.id || 'ALL', sensor_type: r.sensor, days: TREND_DAYS }, { signal: controller.signal })
       ));
       if (state._trendLoadSeq !== seq) return;
       const series = [];
@@ -971,10 +1008,10 @@
 
       // Bước 3: tải event chart riêng + báo cáo chu kỳ 1/7/30/90 cho scope đang xem.
       try {
-        state.trendEvents = await rpc('bms_api_trend_events', { p_scope_type: scope, p_scope_id: activeId || 'ALL', p_days: TREND_DAYS }, { signal: controller.signal });
+        state.trendEvents = await rpcModule('bms_api_trend', 'get_events', { scope_type: scope, scope_id: activeId || 'ALL', days: TREND_DAYS }, { signal: controller.signal });
       } catch(e) { state.trendEvents = []; }
       try {
-        state.trendPeriodReport = await rpc('bms_api_trend_period_report', { p_scope_type: scope, p_scope_id: activeId || 'ALL', p_sensor_type: sensor }, { signal: controller.signal });
+        state.trendPeriodReport = await rpcModule('bms_api_trend', 'get_period_report', { scope_type: scope, scope_id: activeId || 'ALL', sensor_type: sensor }, { signal: controller.signal });
       } catch(e) { state.trendPeriodReport = []; }
 
       state.trendLoaded = true;
@@ -985,12 +1022,12 @@
       const failed = seriesResults.filter(x => x.status === 'rejected');
       if (failed.length) setBanner('partial', failed);
       renderTrendDashboard(); syncSettings(); stampUpdated();
-      setTrendLoadStatus(`Đã tải ${series.length} điểm dữ liệu xu hướng · ${requests.length} nhóm chart · ${TREND_DAYS} ngày`);
+      setTrendLoadStatus(`Đã tải ${series.length} điểm dữ liệu xu hướng · ${requests.length} nhóm biểu đồ · ${TREND_DAYS} ngày`);
     } catch (e) {
       if (e.name !== 'AbortError') {
         setBanner('partial', [{ reason: e }]);
-        trendLoadingPlaceholders('Không tải được dữ liệu xu hướng. Kiểm tra SQL 20, GRANT EXECUTE/SELECT và kết nối Supabase.');
-        setTrendLoadStatus('Lỗi tải trend: ' + e.message);
+        trendLoadingPlaceholders('Không tải được dữ liệu xu hướng. Kiểm tra SQL v10.0.10, GRANT EXECUTE/SELECT và kết nối Supabase.');
+        setTrendLoadStatus('Lỗi tải xu hướng: ' + e.message);
       }
     } finally {
       if (state._trendLoadSeq === seq) state.trendLoading = false;
@@ -1220,10 +1257,10 @@
         compliance_pct:r.compliance_pct, data_quality_pct:r.avg_data_quality_pct ?? r.data_completeness_pct,
         delta_prev_day_pct:r.delta_prev_day_pct, delta_7d_pct:r.delta_7d_pct, assessment:r.trend_assessment_vi, action_hint:r.action_hint_vi
       });
-      if (warnH > 0) bars += `<rect class="trend-bar-warn trend-hit" tabindex="0" onclick="showTrendPointDetail('${payload}')" x="${(p.x-bw/2).toFixed(1)}" y="${(baseY-warnH).toFixed(1)}" width="${bw}" height="${warnH.toFixed(1)}"><title>${dayLabel(r.local_date)} Warning: ${warn}h</title></rect>`;
-      if (critH > 0) bars += `<rect class="trend-bar-crit trend-hit" tabindex="0" onclick="showTrendPointDetail('${payload}')" x="${(p.x-bw/2).toFixed(1)}" y="${(baseY-warnH-critH).toFixed(1)}" width="${bw}" height="${critH.toFixed(1)}"><title>${dayLabel(r.local_date)} Critical: ${crit}h</title></rect>`;
+      if (warnH > 0) bars += `<rect class="trend-bar-warn trend-hit" tabindex="0" onclick="showTrendPointDetail('${payload}')" x="${(p.x-bw/2).toFixed(1)}" y="${(baseY-warnH).toFixed(1)}" width="${bw}" height="${warnH.toFixed(1)}"><title>${dayLabel(r.local_date)} Cảnh báo: ${warn}h</title></rect>`;
+      if (critH > 0) bars += `<rect class="trend-bar-crit trend-hit" tabindex="0" onclick="showTrendPointDetail('${payload}')" x="${(p.x-bw/2).toFixed(1)}" y="${(baseY-warnH-critH).toFixed(1)}" width="${bw}" height="${critH.toFixed(1)}"><title>${dayLabel(r.local_date)} Nghiêm trọng: ${crit}h</title></rect>`;
       const y = hourY(total);
-      points += `<circle class="trend-point trend-hit" tabindex="0" onclick="showTrendPointDetail('${payload}')" cx="${p.x.toFixed(1)}" cy="${y.toFixed(1)}" r="${compact?2.7:4.0}"><title>${dayLabel(r.local_date)}\nTổng giờ cảnh báo: ${total}h\nWarning/Critical: ${warn}/${crit}h\nĐạt: ${fmtPct(r.compliance_pct)}\nDQ: ${fmtPct(r.avg_data_quality_pct ?? r.data_completeness_pct)}\nDelta ngày: ${fmtDelta(r.delta_prev_day_pct)}\nDelta 7d: ${fmtDelta(r.delta_7d_pct)}\n${esc(r.trend_assessment_vi||'')}</title></circle>`;
+      points += `<circle class="trend-point trend-hit" tabindex="0" onclick="showTrendPointDetail('${payload}')" cx="${p.x.toFixed(1)}" cy="${y.toFixed(1)}" r="${compact?2.7:4.0}"><title>${dayLabel(r.local_date)}\nTổng giờ cảnh báo: ${total}h\nCảnh báo/Nghiêm trọng: ${warn}/${crit}h\nĐạt: ${fmtPct(r.compliance_pct)}\nDQ: ${fmtPct(r.avg_data_quality_pct ?? r.data_completeness_pct)}\nDelta ngày: ${fmtDelta(r.delta_prev_day_pct)}\nDelta 7d: ${fmtDelta(r.delta_7d_pct)}\n${esc(r.trend_assessment_vi||'')}</title></circle>`;
       if (!compact && (i===0 || i===rows.length-1 || i % Math.ceil(rows.length/6) === 0)) labels += `<text class="trend-label" x="${p.x.toFixed(1)}" y="${H-12}" text-anchor="middle">${dayLabel(r.local_date)}</text>`;
     });
     const first = rows[0], last = rows[rows.length-1];
@@ -1253,7 +1290,7 @@
     const title = `${scopeLabel(scope)} ${id || ''} · ${sensorLabel(sensor)} · xu hướng giờ cảnh báo/nghiêm trọng`;
     renderSvgTimeChart('trend-main-chart', rows, {title, sensor});
     const h = document.getElementById('trend-main-title');
-    if (h) h.innerHTML = `Individual chart — ${esc(scopeLabel(scope))} <b>${esc(id || latest.scope_id || '')}</b> <span class="hint">— ${sensorLabel(sensor)}, trục tung theo giờ, ${rows.length}/${TREND_DAYS} ngày</span>`;
+    if (h) h.innerHTML = `Biểu đồ riêng — ${esc(scopeLabel(scope))} <b>${esc(id || latest.scope_id || '')}</b> <span class="hint">— ${sensorLabel(sensor)}, trục tung theo giờ, ${rows.length}/${TREND_DAYS} ngày</span>`;
   }
 
   function renderIndividualCards(sensor='ALL') {
@@ -1301,9 +1338,9 @@
       const crit=Number(r.critical_events||0), warn=Number(r.warning_events||0), total=Number(r.opened_events||0);
       const h = total/maxV*plot.h*.82, critH = h*(crit/(total||1)), warnH = h-critH;
       const base = plot.y0+plot.h;
-      const payload = encodeTrendPayload({local_date:r.local_date, local_date_label:dayLabel(r.local_date), scope_type:r.scope_type, scope_id:r.scope_id, scope_name:r.scope_name, warning_hours:warn, critical_hours:crit, alert_hours:total, compliance_pct:null, data_quality_pct:null, delta_prev_day_pct:null, delta_7d_pct:null, assessment:'Sự cố phát sinh trong ngày', action_hint:`Tổng ${total} sự cố mở mới; Warning ${warn}; Critical ${crit}`});
-      if (warnH>0) bars += `<rect class="trend-bar-warn trend-hit" onclick="showTrendPointDetail('${payload}')" x="${(x-bw/2).toFixed(1)}" y="${(base-warnH).toFixed(1)}" width="${bw}" height="${warnH.toFixed(1)}"><title>${dayLabel(r.local_date)} Warning: ${warn}</title></rect>`;
-      if (critH>0) bars += `<rect class="trend-bar-crit trend-hit" onclick="showTrendPointDetail('${payload}')" x="${(x-bw/2).toFixed(1)}" y="${(base-h).toFixed(1)}" width="${bw}" height="${critH.toFixed(1)}"><title>${dayLabel(r.local_date)} Critical: ${crit}</title></rect>`;
+      const payload = encodeTrendPayload({local_date:r.local_date, local_date_label:dayLabel(r.local_date), scope_type:r.scope_type, scope_id:r.scope_id, scope_name:r.scope_name, warning_hours:warn, critical_hours:crit, alert_hours:total, compliance_pct:null, data_quality_pct:null, delta_prev_day_pct:null, delta_7d_pct:null, assessment:'Sự cố phát sinh trong ngày', action_hint:`Tổng ${total} sự cố mở mới; Cảnh báo ${warn}; Nghiêm trọng ${crit}`});
+      if (warnH>0) bars += `<rect class="trend-bar-warn trend-hit" onclick="showTrendPointDetail('${payload}')" x="${(x-bw/2).toFixed(1)}" y="${(base-warnH).toFixed(1)}" width="${bw}" height="${warnH.toFixed(1)}"><title>${dayLabel(r.local_date)} Cảnh báo: ${warn}</title></rect>`;
+      if (critH>0) bars += `<rect class="trend-bar-crit trend-hit" onclick="showTrendPointDetail('${payload}')" x="${(x-bw/2).toFixed(1)}" y="${(base-h).toFixed(1)}" width="${bw}" height="${critH.toFixed(1)}"><title>${dayLabel(r.local_date)} Nghiêm trọng: ${crit}</title></rect>`;
       if (i===0 || i===rows.length-1 || i % Math.ceil(rows.length/6)===0) labels += `<text class="trend-label" x="${x.toFixed(1)}" y="${H-12}" text-anchor="middle">${dayLabel(r.local_date)}</text>`;
     });
     el.innerHTML = `<svg class="trend-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet"><line class="trend-axis" x1="${plot.x0}" x2="${plot.x0+plot.w}" y1="${plot.y0+plot.h}" y2="${plot.y0+plot.h}" />${bars}<text class="trend-label" x="${plot.x0}" y="${plot.y0-6}">Sự cố/ngày</text>${labels}</svg><div class="trend-note" style="margin-top:8px">Cột vàng: Warning; cột đỏ: Critical. Bấm vào cột để xem chi tiết. ${esc(trendCoverageNote(rows))}</div>`;
@@ -1473,14 +1510,14 @@
 
   async function loadUsers() {
     if (!CONNECTED) return [];   // demo: không có danh sách user thật
-    try { return await sb('bms_users','is_active=eq.true&select=email,full_name,role&order=role'); }
+    try { return await sb('v_bms_users_public','select=email,full_name,role&order=role'); }
     catch (e) { console.error('Không tải được người dùng:', e); return []; }
   }
   async function showLogin() {
     const users = await loadUsers();
     let body;
     if (!users.length) {
-      body = `<p style="color:var(--muted)">Chưa lấy được danh sách người dùng.${CONNECTED?' Kiểm tra bảng <code>bms_users</code> đã chạy G1 và cấp quyền cho <code>anon</code> chưa.':' (Đang ở chế độ xem trước — hãy điền Supabase để đăng nhập thật.)'}</p>`;
+      body = `<p style="color:var(--muted)">Chưa lấy được danh sách người dùng.${CONNECTED?' Kiểm tra view <code>v_bms_users_public</code> và quyền đọc cho <code>anon</code> chưa.':' (Đang ở chế độ xem trước — hãy điền Supabase để đăng nhập thật.)'}</p>`;
     } else {
       const opts = users.map(u => `<option value="${esc(u.email)}">${esc(u.full_name)} — ${ROLE_VI[u.role]||u.role}</option>`).join('');
       body = `<select id="loginSelect" style="width:100%;padding:10px;border-radius:8px;margin:12px 0;background:var(--panel-2);color:var(--text);border:1px solid var(--line)">${opts}</select>
@@ -1509,7 +1546,7 @@
     badge.textContent = CURRENT_USER ? `${CURRENT_USER.full_name} (${CURRENT_USER.role})` : 'Chưa đăng nhập';
   }
 
-  /* ===== PHẦN 8 · THAO TÁC SỰ CỐ (RPC bms_event_action) ====== */
+  /* ===== PHẦN 8 · THAO TÁC SỰ CỐ (RPC module bms_api_event_public) ====== */
   async function callEventAction(eventId, action, reason = null) {
     if (!CURRENT_USER) { showLogin(); return null; }
     if (!CONNECTED || String(eventId).startsWith('demo-')) {
@@ -1517,19 +1554,19 @@
       return null;
     }
     try {
-      const authToken = BMS_STORAGE.getItem('bms_supabase_access_token') || SUPABASE_ANON;
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/bms_event_action`, {
-        method:'POST',
-        headers:{ apikey:SUPABASE_ANON, Authorization:'Bearer '+authToken, 'Content-Type':'application/json' },
-        body: JSON.stringify({
-          p_event_id:eventId,
-          p_action:action,
-          p_actor:CURRENT_USER.email,
-          p_reason:reason,
-          p_payload:{ source:'web', ui_user:CURRENT_USER.email, ui_role:CURRENT_USER.role, ui_ts:new Date().toISOString() }
-        })
-      });
-      const r = await res.json();
+      const payload = {
+        event_id: eventId,
+        event_action: action,
+        actor: CURRENT_USER.email,
+        reason,
+        action_payload: {
+          source: 'web',
+          ui_user: CURRENT_USER.email,
+          ui_role: CURRENT_USER.role,
+          ui_ts: new Date().toISOString()
+        }
+      };
+      const r = await rpcModule('bms_api_event_public', 'event_action', payload, { timeoutMs: 20000 });
       if (r && r.ok) {
         toast('Đã ghi nhận thao tác thành công', 'success', 3000);
         await loadAll();
@@ -1543,7 +1580,7 @@
     }
   }
   // Nút thao tác theo vai trò — khớp state machine V2/G2.
-  // Lưu ý: UI chỉ giúp thao tác thuận tiện; server-side bms_event_action vẫn kiểm tra lại role + trạng thái.
+  // Lưu ý: UI chỉ giúp thao tác thuận tiện; server-side bms_api_event_public → bms_event_action vẫn kiểm tra lại role + trạng thái.
   // QUY TẮC CHỐT: chỉ IPC / Cơ điện (MEP) / Trực HSL (LOT) có nút bấm.
   //   QA chỉ GIÁM SÁT — không có nút thao tác trên dòng sự cố.
   //   ADMIN thấy mọi nút để hỗ trợ vận hành.
@@ -1685,30 +1722,168 @@
   }
 
 
+  function rootCauseVN(message) {
+    const msg = String(message || '').toLowerCase();
+    if (!CONNECTED) return {
+      cause: 'Chưa cấu hình Supabase URL hoặc anon key trong index.html.',
+      steps: ['Mở file 03_WEB_APP/index.html.', 'Điền SUPABASE_URL và SUPABASE_ANON lấy tại Supabase → Project Settings → API.', 'Không điền service_role hoặc OpenAI key vào web.', 'Upload lại GitHub Pages hoặc làm mới trình duyệt.']
+    };
+    if (msg.includes('failed to fetch') || msg.includes('network') || msg.includes('cors') || msg.includes('offline')) return {
+      cause: navigator.onLine === false ? 'Thiết bị của bạn chưa kết nối Internet.' : 'Trình duyệt không kết nối được tới máy chủ. Nguyên nhân thường gặp: sai URL, CORS/network bị chặn hoặc dịch vụ tạm gián đoạn.',
+      steps: ['Kiểm tra máy tính có Internet.', 'Kiểm tra SUPABASE_URL đúng dạng https://<project-ref>.supabase.co.', 'Mở DevTools → Network để xem request bị chặn ở bước nào.', 'Nếu đang dùng mạng nhà máy, kiểm tra firewall/proxy và thử lại sau vài phút.']
+    };
+    if (msg.includes('401')) return {
+      cause: 'Khoá anon key không hợp lệ, hết hạn hoặc đang dùng sai project Supabase.',
+      steps: ['Vào Supabase → Project Settings → API.', 'Copy lại anon public key đúng project.', 'Dán vào SUPABASE_ANON trong index.html.', 'Không dùng service_role key ở trình duyệt.']
+    };
+    if (msg.includes('403')) return {
+      cause: 'Bị chặn quyền truy cập. Nguyên nhân thường là thiếu GRANT SELECT/EXECUTE hoặc RLS chặn bảng/view/RPC.',
+      steps: ['Chạy lại 01_BMS_GMP_FULL_INSTALL_CLEAN_v10_0_10.sql trên project trống hoặc đúng môi trường DEV/TEST.', 'Chạy 02_BMS_GMP_SMOKE_TEST_v10_0_10.sql.', 'Kiểm tra security_audit phải trả data=[].', 'Đảm bảo web chỉ đọc view/RPC web-safe, không đọc bảng runtime thô.']
+    };
+    if (msg.includes('404')) return {
+      cause: 'Thiếu view hoặc RPC. Nguyên nhân thường là chưa chạy đủ file SQL cài chính hoặc đang trỏ web sang nhầm Supabase project.',
+      steps: ['Kiểm tra SUPABASE_URL đang trỏ đúng project.', 'Chạy đầy đủ file 01_BMS_GMP_FULL_INSTALL_CLEAN_v10_0_10.sql.', 'Chạy smoke test để kiểm tra các view/RPC.', 'Nếu project đã có dữ liệu thật, không chạy full install; dùng migration riêng.']
+    };
+    if (msg.includes('429')) return {
+      cause: 'Có quá nhiều yêu cầu trong thời gian ngắn. Với web thường do bấm liên tục hoặc nhiều tab; với AI/n8n thường do giới hạn OpenAI.',
+      steps: ['Đợi 30–60 giây rồi thử lại.', 'Không mở nhiều tab dashboard cùng lúc.', 'Trong n8n WF03, kiểm tra retry/backoff và quota OpenAI.', 'Giảm tần suất làm mới nếu production có nhiều người dùng.']
+    };
+    if (msg.includes('timeout') || msg.includes('hết thời gian') || msg.includes('abort')) return {
+      cause: 'Kết nối chậm hoặc truy vấn mất quá lâu.',
+      steps: ['Kiểm tra mạng nội bộ.', 'Chạy smoke test và kiểm tra các index trend/event đã tạo.', 'Giảm khoảng thời gian xu hướng hoặc số lượng phòng hiển thị.', 'Kiểm tra Supabase logs nếu truy vấn kéo dài.']
+    };
+    if (msg.includes('openai')) return {
+      cause: 'Lỗi liên quan OpenAI ở n8n/WF03, không phải lỗi trực tiếp từ Web Dashboard.',
+      steps: ['Kiểm tra credential OPENAI_API_KEY trong n8n.', 'Kiểm tra model trong bms_config.openai_model.', 'Kiểm tra quota/rate limit OpenAI.', 'Chạy lại WF03 và xem email lỗi IT nếu có.']
+    };
+    return {
+      cause: 'Chưa xác định chắc chắn. Cần xem chi tiết lỗi và kết quả smoke test.',
+      steps: ['Chạy lại nút Kiểm tra kết nối.', 'Chạy 02_BMS_GMP_SMOKE_TEST_v10_0_10.sql trong Supabase.', 'Mở n8n execution history nếu lỗi liên quan workflow.', 'Gửi lại thông báo lỗi cụ thể để phân tích sâu hơn.']
+    };
+  }
+
+  function renderTroubleRows(rows) {
+    if (!rows.length) return '<div style="color:var(--green)">✅ Không phát hiện lỗi trong các bước kiểm tra hiện tại.</div>';
+    return rows.map(r => {
+      const info = rootCauseVN(r.detail || r.error || r.message || '');
+      const steps = (r.steps || info.steps || []).map(s => `<li>${esc(s)}</li>`).join('');
+      return `<div style="border-top:1px solid var(--line);padding:10px 0">
+        <div class="line"><span>${esc(r.name)}</span><b style="color:${r.ok?'var(--green)':'var(--red)'}">${r.ok?'ĐẠT':'CẦN XỬ LÝ'}</b></div>
+        <div style="font-size:12px;color:var(--muted);margin:4px 0">Chi tiết: ${esc(r.detail || 'OK')}</div>
+        ${r.ok ? '' : `<div><b>Nguyên nhân có khả năng cao:</b> ${esc(r.cause || info.cause)}</div><ol style="margin-top:6px">${steps}</ol><div class="btn-group" style="margin-top:8px"><button class="btn ghost" onclick="runTroubleshooter()">🔁 Thử lại</button><button class="btn ghost" onclick="goPage('settings')">⚙️ Đi đến Cài đặt</button></div>`}
+      </div>`;
+    }).join('');
+  }
+
   async function runSystemCheck() {
     const el = document.getElementById('system-check-result');
     if (!el) return;
     if (!CONNECTED) {
-      el.innerHTML = '<div class="line"><span>Supabase URL/key</span><b style="color:var(--amber)">Chưa điền — web đang demo mode</b></div><div style="margin-top:8px;color:var(--muted)">Hãy thay SUPABASE_URL và SUPABASE_ANON trong index.html rồi upload lại GitHub Pages.</div>';
+      const info = rootCauseVN('not configured');
+      el.innerHTML = `<div class="line"><span>Supabase URL/key</span><b style="color:var(--amber)">Chưa điền — web đang demo mode</b></div><div style="margin-top:8px;color:var(--muted)">${esc(info.cause)}</div><ol>${info.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>`;
       return;
     }
-    el.innerHTML = 'Đang kiểm tra Supabase, SQL 23 và các API xu hướng/hourly guard…';
+    el.innerHTML = 'Đang kiểm tra Supabase và các API module v10.0.10…';
     const checks = [];
     async function check(name, fn, fix) {
-      try { const r = await fn(); checks.push({name, ok:true, detail:Array.isArray(r)?`${r.length} dòng trả về`:'OK', fix}); }
-      catch(e) { checks.push({name, ok:false, detail:e.message, fix}); }
+      try { const r = await fn(); checks.push({name, ok:true, detail:Array.isArray(r)?`${r.length} dòng trả về`:'OK', steps:[fix]}); }
+      catch(e) { const info = rootCauseVN(e.message); checks.push({name, ok:false, detail:e.message, cause:info.cause, steps:info.steps}); }
     }
-    await check('Kết nối dashboard summary', () => sb('v_dash_summary','limit=1'), 'Chạy SQL 07→10 và kiểm tra GRANT SELECT TO anon.');
-    await check('View trend latest', () => sb('v_dash_trend_scope_latest','limit=1'), 'Chạy SQL 17→19 và GRANT SELECT TO anon.');
-    await check('View trend sensor daily', () => sb('v_dash_trend_sensor_daily','limit=1'), 'Chạy SQL 18 và kiểm tra dữ liệu rollup ngày.');
-    await check('RPC v9.9.1 trend latest', () => rpc('bms_api_trend_scope_latest',{p_scope_type:null,p_sensor_type:'ALL',p_limit:1}), 'Chạy SQL 20→23; nếu 404 là thiếu function, nếu 403 là thiếu GRANT EXECUTE.');
-    await check('RPC v9.9.1 deploy check', () => rpc('bms_api_web_deploy_check',{}), 'Chạy SQL 20→22; nếu 404 là chưa có function, nếu 403 là thiếu GRANT EXECUTE.');
-    await check('Smoke test SQL 23', () => rpc('bms_api_installation_smoke_test',{}), 'Chạy SQL 01→23, đặc biệt file 23_H9_FINAL_hourly_write_guard_v9_9_1.sql.');
-    await check('Hourly write guard', () => rpc('bms_api_hourly_write_guard_check',{}), 'Chạy SQL 23_H9_FINAL_hourly_write_guard_v9_9_1.sql; nếu 404 là thiếu function, nếu 403 là thiếu GRANT EXECUTE.');
-    el.innerHTML = checks.map(c => `<div class="line"><span>${esc(c.name)}</span><b style="color:${c.ok?'var(--green)':'var(--red)'}">${c.ok?'PASS':'FAIL'}</b></div><div style="font-size:12px;color:var(--muted);margin-bottom:8px">${esc(c.detail)}${c.ok?'':' · Cách xử lý: '+esc(c.fix)}</div>`).join('');
+    await check('Supabase RPC — SELECT 1', () => rpcModule('bms_api_system_check','ping',{}), 'Kiểm tra SUPABASE_URL, SUPABASE_ANON và GRANT EXECUTE cho bms_api_system_check.');
+    await check('Kết nối dashboard summary', () => sb('v_dash_summary','limit=1'), 'Chạy SQL cài chính và kiểm tra GRANT SELECT cho view web-safe.');
+    await check('Danh sách sự cố mở', () => sb('v_dash_open_events','limit=1'), 'Kiểm tra view v_dash_open_events được grant SELECT cho anon.');
+    await check('View trend latest', () => sb('v_dash_trend_scope_latest','limit=1'), 'Kiểm tra view xu hướng đã được tạo và grant SELECT.');
+    await check('View trend sensor daily', () => sb('v_dash_trend_sensor_daily','limit=1'), 'Kiểm tra dữ liệu rollup trend ngày.');
+    await check('RPC module xu hướng', () => rpcModule('bms_api_trend','get_scope_latest',{scope_type:null,sensor_type:'ALL',limit:1}), 'Kiểm tra GRANT EXECUTE cho bms_api_trend.');
+    await check('RPC module kiểm tra triển khai', () => rpcModule('bms_api_system_check','web_deploy_check',{}), 'Kiểm tra GRANT EXECUTE cho bms_api_system_check.');
+    await check('Smoke test cài đặt', () => rpcModule('bms_api_system_check','installation_smoke_test',{}), 'Chạy 01_BMS_GMP_FULL_INSTALL_CLEAN_v10_0_10.sql và 02_BMS_GMP_SMOKE_TEST_v10_0_10.sql.');
+    await check('Kiểm tra RLS/GRANT web-safe', async () => {
+      const rows = await rpcModule('bms_api_system_check','security_audit',{});
+      if (Array.isArray(rows) && rows.length) throw new Error(`Security audit phát hiện ${rows.length} quyền/object cần xử lý`);
+      return rows;
+    }, 'Security audit phải trả data=[]. Nếu có dòng, thu hồi quyền bảng/view không web-safe.');
+    el.innerHTML = renderTroubleRows(checks);
   }
 
-  /* ===== PHẦN 10 · ĐIỀU HƯỚNG / THEME / TỰ LÀM MỚI / KHỞI ĐỘNG */
+  async function runTroubleshooter() {
+    const el = document.getElementById('troubleshooter-result');
+    if (!el) return;
+    const started = performance.now();
+    el.innerHTML = 'Đang thu thập tín hiệu từ Supabase, n8n và cấu hình OpenAI…';
+    const rows = [];
+    function push(name, ok, detail, extra={}) { rows.push({ name, ok, detail, ...extra }); }
+
+    if (!CONNECTED) {
+      const info = rootCauseVN('not configured');
+      push('Cấu hình Supabase trên Web', false, 'Chưa điền SUPABASE_URL hoặc SUPABASE_ANON.', info);
+      el.innerHTML = renderTroubleRows(rows);
+      return;
+    }
+
+    const tasks = {
+      supabasePing: rpcModule('bms_api_system_check','ping',{}, {timeoutMs:12000}),
+      supabaseRest: sb('v_dash_summary','limit=1',{timeoutMs:12000}),
+      usersView: sb('v_bms_users_public','limit=1',{timeoutMs:12000}),
+      trendRpc: rpcModule('bms_api_trend','get_scope_latest',{scope_type:null,sensor_type:'ALL',limit:1},{timeoutMs:15000}),
+      securityAudit: rpcModule('bms_api_system_check','security_audit',{}, {timeoutMs:15000}),
+      connectionMatrix: rpcModule('bms_api_system_check','connection_matrix',{}, {timeoutMs:15000}),
+      openaiConfig: rpcModule('bms_api_system_check','openai_config_check',{}, {timeoutMs:15000}),
+      n8nDiagnostic: n8nDiagnosticPing({timeoutMs:18000})
+    };
+
+    const results = await Promise.allSettled(Object.entries(tasks).map(async ([key,promise]) => [key, await promise]));
+    const out = Object.fromEntries(results.map((r, idx) => {
+      const key = Object.keys(tasks)[idx];
+      return [key, r.status === 'fulfilled' ? { ok:true, value:r.value } : { ok:false, reason:r.reason }];
+    }));
+
+    if (out.supabasePing.ok) push('Supabase RPC — SELECT 1', true, 'RPC ping trả về thành công, xác nhận anon key gọi được endpoint web-safe.');
+    else { const info=rootCauseVN(out.supabasePing.reason?.message); push('Supabase RPC — SELECT 1', false, out.supabasePing.reason?.message || 'Không rõ lỗi', info); }
+
+    if (out.supabaseRest.ok) push('Supabase REST — view dashboard', true, 'Đã đọc được v_dash_summary.');
+    else { const info=rootCauseVN(out.supabaseRest.reason?.message); push('Supabase REST — view dashboard', false, out.supabaseRest.reason?.message || 'Không rõ lỗi', info); }
+
+    if (out.usersView.ok) push('Quyền đọc danh sách người thao tác', true, 'Đã đọc được v_bms_users_public.');
+    else { const info=rootCauseVN(out.usersView.reason?.message); push('Quyền đọc danh sách người thao tác', false, out.usersView.reason?.message || 'Không rõ lỗi', info); }
+
+    if (out.trendRpc.ok) push('RPC xu hướng GMP', true, 'RPC bms_api_trend hoạt động.');
+    else { const info=rootCauseVN(out.trendRpc.reason?.message); push('RPC xu hướng GMP', false, out.trendRpc.reason?.message || 'Không rõ lỗi', info); }
+
+    if (out.securityAudit.ok) {
+      const audit = out.securityAudit.value;
+      if (Array.isArray(audit) && audit.length) {
+        push('Bảo mật RLS/GRANT', false, `Phát hiện ${audit.length} điểm cần xử lý.`, { cause:'Một số bảng/view/RPC BMS chưa khóa đúng theo nguyên tắc web-safe.', steps:audit.slice(0,6).map(x => `${x.issue}: ${x.object_name} — ${x.fix}`) });
+      } else push('Bảo mật RLS/GRANT', true, 'Không phát hiện quyền bảng/view/RPC bất thường cho anon/authenticated.');
+    } else { const info=rootCauseVN(out.securityAudit.reason?.message); push('Bảo mật RLS/GRANT', false, out.securityAudit.reason?.message || 'Không rõ lỗi', info); }
+
+    if (out.connectionMatrix.ok) {
+      const items = Array.isArray(out.connectionMatrix.value) ? out.connectionMatrix.value : [];
+      const warn = items.filter(x => ['warning','failed','error'].includes(String(x.status || '').toLowerCase()));
+      push('Ma trận kết nối Web/Supabase/n8n/OpenAI', warn.length === 0, warn.length ? `${warn.length} mục cần chú ý.` : 'Các cấu hình nền tảng chính đã có tín hiệu hợp lệ.', warn.length ? { cause:'Một hoặc nhiều cấu hình kết nối chưa hoàn chỉnh.', steps: warn.map(x => `${x.component}: ${x.detail}`) } : {});
+    } else { const info=rootCauseVN(out.connectionMatrix.reason?.message); push('Ma trận kết nối Web/Supabase/n8n/OpenAI', false, out.connectionMatrix.reason?.message || 'Không rõ lỗi', info); }
+
+    if (out.openaiConfig.ok) {
+      const cfg = Array.isArray(out.openaiConfig.value) ? out.openaiConfig.value[0] : out.openaiConfig.value;
+      push('Cấu hình OpenAI', !!cfg?.api_key_configured, cfg?.api_key_configured ? `Đã cấu hình OpenAI model ${cfg.model || ''} trong n8n/Supabase.` : 'Chưa phát hiện OpenAI API key trong cấu hình backend.', cfg?.api_key_configured ? {} : { cause:'WF03 chưa có OpenAI API key hoặc cấu hình chưa được lưu.', steps:['Mở n8n credential/biến môi trường.', 'Cập nhật OPENAI_API_KEY.', 'Kiểm tra bms_config.openai_model.', 'Chạy lại WF03 hoặc WF05 để kiểm tra.'] });
+    } else { const info=rootCauseVN(out.openaiConfig.reason?.message); push('Cấu hình OpenAI', false, out.openaiConfig.reason?.message || 'Không rõ lỗi', info); }
+
+    if (out.n8nDiagnostic.ok) {
+      const v = out.n8nDiagnostic.value || {};
+      if (v.configured === false || v.status === 'not_configured') {
+        push('n8n/OpenAI reachability qua WF05', false, v.message || 'Chưa cấu hình webhook chẩn đoán.', { cause:'Web chưa có Production URL của workflow WF05.', steps:['Import và active WF05 trong n8n.', 'Copy Production Webhook URL path bms-health-diagnostic.', 'Dán vào N8N_DIAGNOSTIC_WEBHOOK_URL trong index.html nếu cần kiểm tra từ Web.', 'Dán N8N_WEBHOOK_SECRET nếu WF05 yêu cầu header.', 'Không đưa OpenAI key/service_role vào Web.'] });
+      } else {
+        const ok = v.ok !== false && String(v.openai_status || '').toLowerCase() !== 'failed';
+        push('n8n/OpenAI reachability qua WF05', ok, v.message || (ok ? 'n8n phản hồi và đã kiểm tra OpenAI qua backend.' : 'n8n phản hồi nhưng OpenAI chưa đạt.'), ok ? {} : { cause:'n8n hoặc OpenAI đang lỗi/rate limit.', steps: v.steps || ['Kiểm tra credential OpenAI trong n8n.', 'Kiểm tra quota/rate limit.', 'Xem execution history của WF05/WF03.', 'Thử lại sau 30–60 giây nếu gặp 429.'] });
+      }
+    } else { const info=rootCauseVN(out.n8nDiagnostic.reason?.message); push('n8n/OpenAI reachability qua WF05', false, out.n8nDiagnostic.reason?.message || 'Không rõ lỗi', info); }
+
+    const elapsed = Math.round(performance.now() - started);
+    rows.unshift({ name:'Thời gian kiểm tra', ok: elapsed <= 10000, detail: `${elapsed} ms${elapsed > 10000 ? ' — chậm hơn 10 giây, nên kiểm tra mạng/index.' : ''}`, steps:['Nếu thường xuyên quá 10 giây: kiểm tra mạng, Supabase logs, index trend/event và n8n timeout.'] });
+    el.innerHTML = renderTroubleRows(rows);
+  }
+
+  
+/* ===== PHẦN 10 · ĐIỀU HƯỚNG / THEME / TỰ LÀM MỚI / KHỞI ĐỘNG */
   function goPage(id) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('page-' + id).classList.add('active');
@@ -1734,7 +1909,7 @@
     if (rows[0]) rows[0].children[1].innerHTML = `<code>${esc(mask)}</code> ${tag}`;
     if (rows[1]) rows[1].children[1].innerHTML = `<code>eyJ…</code> ${tag}`;
     const ft = document.querySelector('footer');
-    if (ft) ft.innerHTML = `<b>Hệ Thống BMS</b> · CPC1 Hà Nội · Phiên bản v9.9.4 HARDENED<br>Nguồn dữ liệu: Supabase (${CONNECTED?'đã kết nối':'chưa kết nối'}) · Giám sát chuẩn GMP / PIC-S Annex 1`;
+    if (ft) ft.innerHTML = `<b>Hệ Thống BMS</b> · CPC1 Hà Nội · Phiên bản v10.0.10 FINAL CLEAN INSTALL SAFE CANONICAL AUDITED<br>Nguồn dữ liệu: Supabase (${CONNECTED?'đã kết nối':'chưa kết nối'}) · Giám sát chuẩn GMP / PIC/S Annex 1`;
   }
 
   async function manualRefresh() {
